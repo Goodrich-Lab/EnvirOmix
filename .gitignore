@@ -4,3 +4,11 @@
 .httr-oauth
 .DS_Store
 .quarto
+
+# Ignore Data Files
+*.csv
+*.xls
+*.xlsx
+*.xlsm
+*.xlsb
+*.html
