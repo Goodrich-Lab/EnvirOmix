@@ -1,0 +1,41 @@
+#' Simulated HELIX dataset
+#'
+#' A simulated dataset that mimics the structure of the Human Early Life
+#' Exposome (HELIX) dataset.
+#'
+#' A list of 6:
+#' \describe{
+#'   \item{phenotype}{
+#'     A data frame with 420 observations of 6 variables:
+#'     \describe{
+#'       \item{id}{Character vector of IDs}
+#'       \item{hs_child_age_yrs_None}{Numerical vector of child ages}
+#'       \item{hs_hg_m_scaled}{Numerical vector of scaled hs_hg_m values}
+#'       \item{ck18_scaled}{Numerical vector of scaled ck18 values}
+#'       \item{e3_sex_None}{Factor with 2 levels ("female", "male")}
+#'       \item{h_fish_preg_Ter}{Factor with 3 levels ("1", "2", "3")}
+#'     }
+#'   }
+#'   \item{methylome}{
+#'     A numerical matrix [420x28] with row names representing individual
+#'     IDs and column names representing methylation sites.
+#'   }
+#'   \item{transcriptome}{
+#'     A numerical matrix [420x28] with row names representing individual
+#'      IDs and column names representing transcript sites.
+#'   }
+#'   \item{miRNA}{
+#'     A numerical matrix [420x28] with row names representing individual
+#'      IDs and column names representing miRNA sites.
+#'   }
+#'   \item{proteome}{
+#'     A numerical matrix [420x28] with row names representing individual
+#'     IDs and column names representing proteins.
+#'   }
+#'   \item{metabolome}{
+#'     A numerical matrix [420x28] with row names representing individual
+#'     IDs and column names representing metabolites.
+#'   }
+#' }
+#' @source http://www.projecthelix.eu/
+"simulated_data"
