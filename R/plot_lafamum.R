@@ -35,7 +35,7 @@ plot_lafamum <- function(lafamum_res,
   }
 
   # Panel A Bargraph of mediation effects of latent factors --------------
-  med_long <- lafamum_res[[1]] %>%
+  med_long <- lafamum_res[[1]] |>
     pivot_longer(cols = c(Alpha, Beta, `TME (%)`))
 
   # Plot
@@ -62,9 +62,9 @@ plot_lafamum <- function(lafamum_res,
 
   # Select features for plots -------
   # Select Features
-  lafamum_res_ftrs <- lafamum_res[[2]] %>%
-    select(-omic_layer, -omic_num) %>%
-    filter(!rowSums(is.na(.)) == ncol(.)) %>%
+  lafamum_res_ftrs <- lafamum_res[[2]] |>
+    select(-omic_layer, -omic_num) |>
+    filter(!rowSums(is.na(.)) == ncol(.)) |>
     column_to_rownames("feature")
 
   ## Select rows with values in the top 10 of their respective columns
@@ -76,14 +76,14 @@ plot_lafamum <- function(lafamum_res,
 
   # Pivot longer
   ftr_cor_sig_lf_top_ft_l <-
-    ftr_cor_sig_lf_top_ft %>%
+    ftr_cor_sig_lf_top_ft |>
     pivot_longer(cols = all_of(lafamum_res[[1]]$lf_num),
                  names_to = "lf_num",
                  values_to = "Correlation")
 
   # Change features which are in wrong JIVE individual component to zero
   if(lafamum_res[[3]] == "Intermediate") {
-    ftr_cor_sig_lf_top_ft_l <- ftr_cor_sig_lf_top_ft_l %>%
+    ftr_cor_sig_lf_top_ft_l <- ftr_cor_sig_lf_top_ft_l |>
       mutate(
         in_ind_omic = str_sub(lf_num, 1, 5) == str_sub(omic_layer, 1, 5),
         Correlation = ifelse(in_ind_omic | str_detect(lf_num, "Joint"),
@@ -93,10 +93,10 @@ plot_lafamum <- function(lafamum_res,
   # Join with long format of mediation effects of latent factors
   # to get the ordered latent factor
   panel_b_dat_top_ft <- left_join(ftr_cor_sig_lf_top_ft_l,
-                                  med_long %>%
-                                    filter(name == "Alpha") %>%
+                                  med_long |>
+                                    filter(name == "Alpha") |>
                                     dplyr::select(lf_num, lf_ordered),
-                                  by = "lf_num") %>%
+                                  by = "lf_num") |>
     mutate(omic_num2 = case_when(str_detect(lf_num, "meth") ~ 1,
                                  str_detect(lf_num, "transc") ~ 2,
                                  str_detect(lf_num, "miR") ~ 3,

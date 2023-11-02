@@ -15,11 +15,11 @@
 #'
 plot_hidimum <- function(result_hima) {
   # Pivot longer for figure
-  result_hima_long <- result_hima %>%
+  result_hima_long <- result_hima |>
     rename(Alpha = alpha,
-           Beta = beta) %>%
+           Beta = beta) |>
     pivot_longer(cols = c(Alpha, Beta,`TME (%)`),
-                 names_to = "name") %>%
+                 names_to = "name") |>
     mutate(name = factor(name, levels = c("Alpha", "Beta", "TME (%)")))
 
   # Plot features

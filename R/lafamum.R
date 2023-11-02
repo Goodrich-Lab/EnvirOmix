@@ -65,14 +65,14 @@ lafamum <- function(exposure,
   omics_lst_df <- purrr::map(omics_lst, ~as_tibble(.x, rownames = "name"))
 
   # Create data frame of omics data
-  omics_df <- omics_lst %>%
-    purrr::map(~as_tibble(.x, rownames = "name")) %>%
-    purrr::reduce(left_join, by = "name") %>%
+  omics_df <- omics_lst |>
+    purrr::map(~as_tibble(.x, rownames = "name")) |>
+    purrr::reduce(left_join, by = "name") |>
     column_to_rownames("name")
 
   # Meta data
-  meta_df <- imap_dfr(omics_lst_df, ~tibble(omic_layer = .y, ftr_name = names(.x)))%>%
-    filter(ftr_name != "name") %>%
+  meta_df <- imap_dfr(omics_lst_df, ~tibble(omic_layer = .y, ftr_name = names(.x)))|>
+    filter(ftr_name != "name") |>
     mutate(omic_num = case_when(str_detect(omic_layer, "meth") ~ 1,
                                 str_detect(omic_layer, "transc") ~ 2,
                                 str_detect(omic_layer, "miR") ~ 3,
@@ -93,7 +93,7 @@ lafamum <- function(exposure,
     n_80_pct <- min((1:length(cum_props))[cum_props > 0.8])
 
     # The first PCs which explain >80% of the variance are used as latent mediators
-    PCs <- omics_df_pca$x[, 1:n_80_pct] %>% scale()
+    PCs <- omics_df_pca$x[, 1:n_80_pct] |> scale()
 
     # ii. Perform HIMA with PCs as mediator----
 
@@ -108,21 +108,21 @@ lafamum <- function(exposure,
 
 
     # Change to tibble and select significant PCs
-    result_hima_pca_early <- as_tibble(result_hima_comb_pc, rownames = "lf_num") %>%
+    result_hima_pca_early <- as_tibble(result_hima_comb_pc, rownames = "lf_num") |>
       filter(BH.FDR < fdr.level)
 
     # Filter Significant PCs, Create scaled %TE variable
-    result_hima_pca_early_sig <- result_hima_pca_early %>%
+    result_hima_pca_early_sig <- result_hima_pca_early |>
       mutate(
         te_direction = if_else(beta<0, -1*`% total effect`, `% total effect`),
-        `% Total Effect scaled` = 100*`% total effect`/sum(`% total effect`) %>%
+        `% Total Effect scaled` = 100*`% total effect`/sum(`% total effect`) |>
           round(1),
-        multiomic_mthd = "Early") %>%
+        multiomic_mthd = "Early") |>
       mutate(lf_named = str_replace(lf_num, "PC", "Joint Comp. "),
-             lf_ordered = forcats::fct_reorder(lf_named, `te_direction`)) %>%
+             lf_ordered = forcats::fct_reorder(lf_named, `te_direction`)) |>
       rename(Alpha = alpha,
              Beta = beta,
-             `TME (%)` = `% Total Effect scaled`) %>%
+             `TME (%)` = `% Total Effect scaled`) |>
       mutate(omic_num = case_when(str_detect(lf_num, "meth") ~ 1,
                                   str_detect(lf_num, "transc") ~ 2,
                                   str_detect(lf_num, "miR") ~ 3,
@@ -139,8 +139,8 @@ lafamum <- function(exposure,
     ftr_cor_sig_pcs <- var.cor[,(colnames(var.cor) %in%
                                    result_hima_pca_early_sig$lf_num)]
 
-    ftr_cor_sig_pcs_df <- ftr_cor_sig_pcs %>%
-      as_tibble(rownames = "feature") %>%
+    ftr_cor_sig_pcs_df <- ftr_cor_sig_pcs |>
+      as_tibble(rownames = "feature") |>
       left_join(meta_df, by = c("feature" = "ftr_name"))
 
 
@@ -163,9 +163,9 @@ lafamum <- function(exposure,
     if (is.null(jive.rankJ) | is.null(jive.rankA)) {
       # Message
       message(paste0("Step A) Starting JIVE analysis...   (",
-                     Sys.time() %>%
-                       format("%H:%M:%S") %>%
-                       str_split(":") %>% unlist()[1:3] %>%
+                     Sys.time() |>
+                       format("%H:%M:%S") |>
+                       str_split(":") |> unlist()[1:3] |>
                        paste(collapse = ":"),
                      ")\n"))
       # Run JIVE without ranks given
@@ -178,9 +178,9 @@ lafamum <- function(exposure,
     } else {
       # Message
       message(paste0("Step A) Starting JIVE analysis with ranks given...   (",
-                     Sys.time() %>%
-                       format("%H:%M:%S") %>%
-                       str_split(":") %>% unlist()[1:3] %>%
+                     Sys.time() |>
+                       format("%H:%M:%S") |>
+                       str_split(":") |> unlist()[1:3] |>
                        paste(collapse = ":"),
                      ")\n"))
 
@@ -237,7 +237,7 @@ lafamum <- function(exposure,
         }
       }
       # Rename PCs
-      rownames(PCs) <- PC_names %>%
+      rownames(PCs) <- PC_names |>
         str_replace("  ", "_")
       # Transpose and change to data.frame
       out <- as.data.frame(t(PCs))
@@ -245,14 +245,14 @@ lafamum <- function(exposure,
       return(out)
     }
 
-    factors_jive <- get_PCs_jive(result_jive2) %>%
+    factors_jive <- get_PCs_jive(result_jive2) |>
       dplyr::mutate(across(everything(), ~as.vector(scale(.))))
 
     # run mediation analysis------
     message(paste0("Step B) Starting hima on JIVE factors...    (",
-                   Sys.time() %>%
-                     format("%H:%M:%S") %>%
-                     str_split(":") %>% unlist()[1:3] %>%
+                   Sys.time() |>
+                     format("%H:%M:%S") |>
+                     str_split(":") |> unlist()[1:3] |>
                      paste(collapse = ":"),
                    ")\n"))
 
@@ -271,28 +271,28 @@ lafamum <- function(exposure,
                              scale = FALSE)
 
     # Modify and filter significant
-    result_hima_jive_1 <- result_hima_jive %>%
-      rownames_to_column("lf_num") %>%
+    result_hima_jive_1 <- result_hima_jive |>
+      rownames_to_column("lf_num") |>
       mutate(multiomic_mthd = "Intermediate",
              ind_joint = str_split_fixed(lf_num, fixed("_"), 2)[,1],
              ind_joint_num = case_when(ind_joint == "Joint" ~ 1,
                                        ind_joint == "methylome" ~ 2,
-                                       ind_joint == "transcriptome" ~ 3)) %>%
+                                       ind_joint == "transcriptome" ~ 3)) |>
       dplyr::select(multiomic_mthd, everything())
 
     # Filter significant components and create scaled %TE variable
-    result_hima_jive_sig <-  result_hima_jive_1 %>%
-      filter(BH.FDR<fdr.level) %>%
+    result_hima_jive_sig <-  result_hima_jive_1 |>
+      filter(BH.FDR<fdr.level) |>
       mutate(`% Total Effect scaled` =
                round(100*`% total effect`/sum(`% total effect`),1),
              te_direction = if_else(beta < 0,
                                     -1 * `% total effect`,
-                                    `% total effect`)) %>%
+                                    `% total effect`)) |>
       mutate(lf_named = str_replace(str_to_title(lf_num), "_", " Comp. "),
-             lf_ordered = forcats::fct_reorder(lf_named, `te_direction`)) %>%
+             lf_ordered = forcats::fct_reorder(lf_named, `te_direction`)) |>
       rename(Alpha = alpha,
              Beta = beta,
-             `TME (%)` = `% Total Effect scaled`)%>%
+             `TME (%)` = `% Total Effect scaled`)|>
       mutate(omic_num = case_when(str_detect(lf_num, "meth") ~ 1,
                                   str_detect(lf_num, "transc") ~ 2,
                                   str_detect(lf_num, "miR") ~ 3,
@@ -308,8 +308,8 @@ lafamum <- function(exposure,
     ftr_cor_sig_pcs_jive <- var.cor[,(colnames(var.cor) %in%
                                         result_hima_jive_sig$lf_num)]
 
-    ftr_cor_sig_pcs_jive_df <- ftr_cor_sig_pcs_jive %>%
-      as_tibble(rownames = "feature") %>%
+    ftr_cor_sig_pcs_jive_df <- ftr_cor_sig_pcs_jive |>
+      as_tibble(rownames = "feature") |>
       left_join(meta_df, by = c("feature" = "ftr_name"))
 
     res = list(result_hima_jive_sig = result_hima_jive_sig,
@@ -334,16 +334,16 @@ lafamum <- function(exposure,
       # determine the number of principal components needed to explain 80% of the variance
       n_80_pct <- min((1:length(cum_props))[cum_props > 0.8])
       # create a dataframe of scores for the principal components and scale them
-      PCs <- pca$x[, 1:n_80_pct] %>% scale() %>% as.data.frame()
+      PCs <- pca$x[, 1:n_80_pct] |> scale() |> as.data.frame()
       colnames(PCs) <- paste0(omic_name, "_", colnames(PCs))
       # create a dataframe of loadings for the principal components and scale them
-      loadings_df <- pca$rotation[, 1:n_80_pct] %>% scale() %>% as.data.frame()
+      loadings_df <- pca$rotation[, 1:n_80_pct] |> scale() |> as.data.frame()
       colnames(loadings_df) <- paste0(omic_name, "_", colnames(loadings_df))
       loadings_df <- rownames_to_column(loadings_df, "feature")
 
       # Including all PCs
       # create a dataframe of scores for the principal components and scale them
-      PCs_full <- pca$x %>% scale() %>% as.data.frame()
+      PCs_full <- pca$x |> scale() |> as.data.frame()
       colnames(PCs_full) <- paste0(omic_name, "_", colnames(PCs_full))
 
       # create a dataframe of proportion of variance explained by each principal component
@@ -360,7 +360,7 @@ lafamum <- function(exposure,
     scores_list_late_int <-  map2(omics_lst,
                                   names(omics_lst),
                                   ~run_pca(.x, .y)$scores)
-    scores_df <- purrr::reduce(scores_list_late_int, cbind) %>% as.data.frame()
+    scores_df <- purrr::reduce(scores_list_late_int, cbind) |> as.data.frame()
 
     # Loadings: Apply function to each matrix in the list and collect PC
     loadings_list_late_int <- map2(omics_lst,
@@ -369,7 +369,7 @@ lafamum <- function(exposure,
     loadings_df <- purrr::reduce(loadings_list_late_int, full_join, by = "feature")
 
     # Number of PCs explain >80%: Get number of PCs for each omic
-    late_int_pcs_80 <- purrr::map(omics_lst, ~run_pca(.x, NULL)$n_pcs_80_pct) %>%
+    late_int_pcs_80 <- purrr::map(omics_lst, ~run_pca(.x, NULL)$n_pcs_80_pct) |>
       bind_rows()
 
     # ii. run HIMA with the current dataset and principal components ----
@@ -383,27 +383,27 @@ lafamum <- function(exposure,
                                          scale = FALSE)
 
     # Filter significant pcs, create scaled %TE variable
-    result_hima_late_sig <- result_hima_late_integration %>%
-      as_tibble(rownames = "lf_num") %>%
-      filter(BH.FDR < 0.05) %>%
+    result_hima_late_sig <- result_hima_late_integration |>
+      as_tibble(rownames = "lf_num") |>
+      filter(BH.FDR < 0.05) |>
       mutate(
         te_direction = if_else(beta<0, -1*`% total effect`, `% total effect`),
         `% Total Effect scaled` = 100*`% total effect`/sum(`% total effect`))
 
-    result_hima_late_sig <- result_hima_late_sig  %>%
+    result_hima_late_sig <- result_hima_late_sig  |>
       mutate(lf_numeric = str_split_fixed(lf_num, fixed("_"), 2)[,2],
-             omic_layer = str_split_fixed(lf_num, fixed("_"), 2)[,1] %>%
+             omic_layer = str_split_fixed(lf_num, fixed("_"), 2)[,1] |>
                str_to_sentence(),
-             multiomic_mthd = "Late")%>%
+             multiomic_mthd = "Late")|>
       mutate(omic_layer = str_replace(omic_layer, "Mirna", "miRNA" ),
-             omic_pc = str_c(omic_layer, " ", lf_numeric) %>%
-               str_replace("PC", "Comp. ")) %>%
-      mutate(lf_ordered = forcats::fct_reorder(omic_pc, `te_direction`)) %>%
+             omic_pc = str_c(omic_layer, " ", lf_numeric) |>
+               str_replace("PC", "Comp. ")) |>
+      mutate(lf_ordered = forcats::fct_reorder(omic_pc, `te_direction`)) |>
       dplyr::select(multiomic_mthd, omic_pc, omic_layer, lf_num, lf_ordered,
-                    alpha, beta, `% Total Effect scaled`) %>%
+                    alpha, beta, `% Total Effect scaled`) |>
       rename(Alpha = alpha,
              Beta = beta,
-             `TME (%)` = `% Total Effect scaled`) %>%
+             `TME (%)` = `% Total Effect scaled`) |>
       mutate(omic_num = case_when(str_detect(lf_num, "meth") ~ 1,
                                   str_detect(lf_num, "transc") ~ 2,
                                   str_detect(lf_num, "miR") ~ 3,
@@ -416,18 +416,18 @@ lafamum <- function(exposure,
                                       names(omics_lst),
                                       ~run_pca(.x, .y)$scores_full)
 
-    scores_df_full <- purrr::reduce(scores_full_list_late_int, cbind) %>% as.data.frame()
+    scores_df_full <- purrr::reduce(scores_full_list_late_int, cbind) |> as.data.frame()
 
     # Get correlation of omics and PCs by omic layer
     var.cor <- map_df(names(omics_lst), function(type) {
-      cor(omics_lst[[type]], scores_full_list_late_int[[type]]) %>%
+      cor(omics_lst[[type]], scores_full_list_late_int[[type]]) |>
         as.data.frame()
     })
 
     # Select only significant PCs
-    ftr_cor_sig_pcs_late <- var.cor %>%
-      dplyr::select(result_hima_late_sig$lf_num) %>%
-      as_tibble(rownames = "feature") %>%
+    ftr_cor_sig_pcs_late <- var.cor |>
+      dplyr::select(result_hima_late_sig$lf_num) |>
+      as_tibble(rownames = "feature") |>
       left_join(meta_df, by = c("feature" = "ftr_name"))
 
     res = list(result_hima_late_sig = result_hima_late_sig,
