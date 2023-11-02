@@ -22,6 +22,13 @@ hidimum(
 
 \item{covs}{A numeric matrix representing the covariates}
 
+\item{Y.family}{A character string indicating the family of the outcome}
+
+\item{M.family}{A character string indicating the family of the mediator}
+
+\item{integration}{A character string indicating the integration method (one
+of early, intermediate, or late)}
+
 \item{n_boot}{number indicating number of bootstrap estimates to perform
 for calculating the se of the mediation effect (only applies for
 intermediate integration, otherwise, ignored)}

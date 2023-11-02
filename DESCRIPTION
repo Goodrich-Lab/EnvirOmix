@@ -21,6 +21,7 @@ LazyData: true
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+biocViews: BiocGenerics, ComplexHeatmap, IRange, qvalue, S4Vectors
 Imports: 
     magrittr,
     tibble, 
@@ -36,4 +37,11 @@ Imports:
     epiomics, 
     janitor, 
     RMediation, 
-    ggplot2
+    ggplot2, 
+    BiocManager, 
+    BiocGenerics, 
+    ComplexHeatmap, 
+    IRanges,
+    qvalue, 
+    S4Vectors
+    
