@@ -26,6 +26,6 @@ devtools::install_github("Goodrich-Lab/EnvirOmix")
 
 ## Examples
 
-Please see the companions book for detailed examples of how to use the
-functions in this package, which you can access
-[here](https://goodrich-lab.github.io/multiomics_book/).
+Please see the companion book (access
+[here](https://goodrich-lab.github.io/multiomics_book/)) for detailed
+examples of how to use the functions in this package.
