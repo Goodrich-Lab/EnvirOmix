@@ -4,6 +4,9 @@
 # EnvirOmix
 
 <!-- badges: start -->
+
+[![Codecov test
+coverage](https://codecov.io/gh/Goodrich-Lab/EnvirOmix/branch/main/graph/badge.svg)](https://app.codecov.io/gh/Goodrich-Lab/EnvirOmix?branch=main)
 <!-- badges: end -->
 
 The goal of EnvirOmix is to provide a suite of functions for the
