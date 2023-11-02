@@ -28,26 +28,27 @@ test_that("test hidimum", {
 
   ## Early Run Analysis ----
   result_hidimum_early <- hidimum(exposure = exposure,
-                               outcome = outcome,
-                               omics_lst = omics_lst,
-                               covs = covs,
-                               Y.family = "gaussian",
-                               M.family = "gaussian",
-                               integration = "early")
+                                  outcome = outcome,
+                                  omics_lst = omics_lst,
+                                  covs = covs,
+                                  Y.family = "gaussian",
+                                  M.family = "gaussian",
+                                  integration = "early")
 
   ### Test Early -------
   testthat::expect_equal(object = ncol(result_hidimum_early), expected = 15)
 
   ## Intermediate Run Analysis ----
+  set.seed(1234)
   result_hidimum_int <- hidimum(exposure = exposure,
-                             outcome = outcome,
-                             omics_lst = omics_lst,
-                             covs = covs,
-                             Y.family = "gaussian",
-                             M.family = "gaussian",
-                             integration = "intermediate",
-                             n_boot = num_workers,
-                             n_cores = num_workers)
+                                outcome = outcome,
+                                omics_lst = omics_lst,
+                                covs = covs,
+                                Y.family = "gaussian",
+                                M.family = "gaussian",
+                                integration = "intermediate",
+                                n_boot = num_workers,
+                                n_cores = num_workers)
 
   ### Test intermediate -------
   testthat::expect_equal(object = ncol(result_hidimum_int), expected = 16)
@@ -55,12 +56,12 @@ test_that("test hidimum", {
 
   ## Late Run Analysis ----
   result_hidimum_int <- hidimum(exposure = exposure,
-                             outcome = outcome,
-                             omics_lst = omics_lst,
-                             covs = covs,
-                             Y.family = "gaussian",
-                             M.family = "gaussian",
-                             integration = "late")
+                                outcome = outcome,
+                                omics_lst = omics_lst,
+                                covs = covs,
+                                Y.family = "gaussian",
+                                M.family = "gaussian",
+                                integration = "late")
 
   ### Test late -------
   testthat::expect_equal(object = ncol(result_hidimum_int), expected = 14)
