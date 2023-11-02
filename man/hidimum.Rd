@@ -12,7 +12,9 @@ hidimum(
   Y.family = "binomial",
   M.family = "gaussian",
   integration,
-  n_boot
+  n_boot,
+  ...,
+  n_cores = NULL
 )
 }
 \arguments{
@@ -32,6 +34,8 @@ of early, intermediate, or late)}
 \item{n_boot}{number indicating number of bootstrap estimates to perform
 for calculating the se of the mediation effect (only applies for
 intermediate integration, otherwise, ignored)}
+
+\item{...}{Additional arguments to pass to boot::boot}
 
 \item{omics}{A list of numeric matrices representing omics data}
 }

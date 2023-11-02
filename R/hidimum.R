@@ -15,6 +15,7 @@
 #' @param n_boot number indicating number of bootstrap estimates to perform
 #' for calculating the se of the mediation effect (only applies for
 #' intermediate integration, otherwise, ignored)
+#' @param ... Additional arguments to pass to boot::boot
 #'
 #' @return A tidy dataframe summarizing the results of HIMA analysis
 #'
@@ -41,7 +42,9 @@ hidimum <- function(exposure,
                     Y.family = "binomial",
                     M.family = "gaussian",
                     integration,
-                    n_boot) {
+                    n_boot,
+                    ...,
+                    n_cores = NULL) {
 
   # Give error if integration is not early, intermediate, or late
   if (!(integration %in% c("early", "intermediate", "late"))) {
@@ -265,19 +268,28 @@ hidimum <- function(exposure,
     }
 
     # 3.2) Run Bootstrap analysis ----------------------
+    # Set up for parallelization
+    if (!is.null(n_cores)) {
+      # Use the specified ncores value
+      num_workers <- n_cores
+    } else {
+      # Use a default or handle as necessary
+      num_workers <- parallel::detectCores()
+    }
+
     # Run Bootstrap
     if(is.null(covs)){
       boot_out <- boot(data = full_data,
                        statistic = group_lasso_boot,
                        R = n_boot,
-                       ncpus = detectCores(),
+                       ncpus = num_workers,
                        parallel = "multicore",
                        external_info = external_info)
     } else {
       boot_out <- boot(data = full_data,
                        statistic = group_lasso_boot,
                        R = n_boot,
-                       ncpus = detectCores(),
+                       ncpus = num_workers,
                        parallel = "multicore",
                        external_info = external_info,
                        covs = covs)
