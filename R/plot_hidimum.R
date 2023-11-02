@@ -11,6 +11,8 @@
 #' @import forcats
 #' @import ggplot2
 #'
+#' @export
+#'
 plot_hidimum <- function(result_hima) {
   # Pivot longer for figure
   result_hima_long <- result_hima %>%
