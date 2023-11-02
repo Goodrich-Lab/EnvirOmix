@@ -11,17 +11,29 @@ coverage](https://codecov.io/gh/Goodrich-Lab/EnvirOmix/branch/main/graph/badge.s
 
 The goal of EnvirOmix is to provide a suite of functions for the
 analysis of environmental and multiomics data. This is the companion
-package for the book “Integrating Multi-Omics with Environmental data
-for Precision Health”. It contains all of the functions and data
-required to run all of the examples in the book.
+package for the book [Integrating Multi-Omics with Environmental data
+for Precision Health](https://goodrich-lab.github.io/multiomics_book/).
+It contains all of the functions and data required to run all of the
+examples in the book.
 
 ## Installation
 
-You can install EnvirOmix from [GitHub](https://github.com/) with:
+You can install EnvirOmix from
+[GitHub](https://github.com/Goodrich-Lab/EnvirOmix) with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("Goodrich-Lab/EnvirOmix")
+```
+
+**NOTE:** If you receive an error message during installation that the
+package “qvalue” is not found, please install it manually with:
+
+``` r
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("qvalue")
 ```
 
 ## Examples
