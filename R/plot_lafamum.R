@@ -28,6 +28,9 @@
 plot_lafamum <- function(lafamum_res,
                          n_features = 10,
                          plot_type = "all") {
+  # Define variables
+  Correlation <- feature <- in_ind_omic <- lf_num <- lf_ordered <- name <-
+    omic_layer <- omic_num <- value <- NULL
 
   # Make sure that plot_type is one of all, mediation, or features
   if(!plot_type %in% c("all", "mediation", "features")) {
@@ -36,7 +39,7 @@ plot_lafamum <- function(lafamum_res,
 
   # Panel A Bargraph of mediation effects of latent factors --------------
   med_long <- lafamum_res[[1]] |>
-    pivot_longer(cols = c(Alpha, Beta, `TME (%)`))
+    pivot_longer(cols = c("Alpha", "Beta", "TME (%)"))
 
   # Plot
   panel_a <- ggplot(med_long, aes(x = lf_ordered, y = value)) +
@@ -61,10 +64,11 @@ plot_lafamum <- function(lafamum_res,
   # Panel B: heatmap of correlation of features vs PC's --------------
 
   # Select features for plots -------
-  # Select Features
-  lafamum_res_ftrs <- lafamum_res[[2]] |>
-    select(-omic_layer, -omic_num) |>
-    filter(!rowSums(is.na(.)) == ncol(.)) |>
+  # Subset the list and select relevant columns
+  lafamum_sub <- select(lafamum_res[[2]], -omic_layer, -omic_num)
+  # Filter out rows that have all NA values
+  lafamum_res_ftrs <- lafamum_sub |>
+    filter(!rowSums(is.na(lafamum_sub)) == ncol(lafamum_sub)) |>
     column_to_rownames("feature")
 
   ## Select rows with values in the top 10 of their respective columns

@@ -52,12 +52,11 @@ hidimum <- function(exposure,
                     n_cores = NULL) {
 
   # Set all of these variables to NULL to fix message that they are not found
-  `% Total Effect scaled` <- `% total effect` <- Alpha <- Beta <-
+  `% Total Effect scaled` <- `% total effect` <- Alpha <- Beta <- BH.FDR <-
     `Correlation TME (%)` <- beta_bootstrap <- data <- estimate <- feature <-
     feature_name <- ftr_name <- in_ind_omic <- indirect <- lcl <- lf_named <-
     lf_num <- lf_numeric <- lf_ordered <- name <- omic_layer <- omic_num <-
-    omic_pc <- pte <- res <-
-    sig <- te_direction <- ucl <- value <- var <- NULL
+    omic_pc <- pte <- res <- sig <- te_direction <- ucl <- value <- NULL
 
 
   # Give error if integration is not early, intermediate, or late
@@ -108,7 +107,7 @@ hidimum <- function(exposure,
       column_to_rownames("name")
 
     # Run hima
-    result_hima_early <- hima(X = exposure,
+    result_hidimum_early <- hima(X = exposure,
                               Y = outcome,
                               M = omics_df,
                               COV.XM = covs,
@@ -121,7 +120,7 @@ hidimum <- function(exposure,
       as_tibble(rownames = "ftr_name")
 
     # Reorders the columns and adds the omics layer information
-    result_hima_early <- result_hima_early |>
+    result_hidimum_early <- result_hidimum_early |>
       dplyr::mutate(
         multiomic_mthd = "Early Integration",
         mediation_mthd = "HIMA") |>
@@ -129,7 +128,7 @@ hidimum <- function(exposure,
                     "ftr_name",
                     everything())
     # Filter to significant features only and scale % total effect to 100
-    result_hima_early <- result_hima_early |>
+    result_hidimum_early <- result_hidimum_early |>
       filter(BH.FDR < bh.fdr) |>
       mutate(pte = 100*`% total effect`/sum(`% total effect`),
              sig = if_else(BH.FDR < bh.fdr, 1, 0)) |>
@@ -137,13 +136,13 @@ hidimum <- function(exposure,
              `TME (%)` = pte)
 
     # Merge results with feature metadata
-    result_hima_early <- result_hima_early |>
+    result_hidimum_early <- result_hidimum_early |>
       left_join(meta_df, by = "ftr_name") |>
       mutate(integration = integration)
 
 
     # Return result
-    return(result_hima_early)
+    return(result_hidimum_early)
   }
 
   # Intermediate integration ---------
@@ -179,12 +178,26 @@ hidimum <- function(exposure,
 
     # Get external information matrix
     # Convert each data frame to a long format and extract the unique column names
-    external_info <- purrr::map(omics_lst,
-                                ~data.frame(column = colnames(.x), val = 1)) |>
-      map2(names(omics_lst), ~dplyr::rename(.x, !!.y := val)) |>
-      purrr::reduce(., full_join, by = "column") |>
-      replace(is.na(.), 0) |>
-      column_to_rownames("column")
+    # Convert each data frame to a long format and extract the unique column names
+    df_list <- purrr::map(omics_lst, function(omic_data) {
+      data.frame(column = colnames(omic_data), val = 1)
+    })
+    # Rename the 'val' column using names from the 'omics_lst'
+    named_df_list <- purrr::map2(df_list, names(omics_lst),
+                                 function(df, name) {
+                                   names(df)[names(df) == "val"] <- name
+                                   return(df)
+                                 })
+
+    # Reduce the list of data frames into a single data frame with full join
+    combined_df <- purrr::reduce(named_df_list, function(df1, df2) {
+      full_join(df1, df2, by = "column")
+    })
+    # Replace NA values with 0
+    final_df <- replace(combined_df, is.na(combined_df), 0)
+    # Set rownames using "column" column and drop the column
+    external_info <- column_to_rownames(final_df, "column")
+
 
     ## 0) calculate gamma (x --> y) ----
     if(Y.family == "binary"){
@@ -390,10 +403,10 @@ hidimum <- function(exposure,
                                   str_detect(omic_layer, "pro") ~ 4,
                                   str_detect(omic_layer, "met") ~ 5))
     # Start the computation
-    result_hima_late <- vector(mode = "list", length = n_omics)
+    result_hidimum_late <- vector(mode = "list", length = n_omics)
     for(i in 1:n_omics) {
       # Run HIMA with input data
-      result_hima_late[[i]] <- hima(X = exposure,
+      result_hidimum_late[[i]] <- hima(X = exposure,
                                     Y = outcome,
                                     M = omics_lst[[i]],
                                     COV.XM = covs,
@@ -405,13 +418,13 @@ hidimum <- function(exposure,
     }
 
     # Assign omic names
-    names(result_hima_late) <- names(omics_lst)
+    names(result_hidimum_late) <- names(omics_lst)
 
     # Concatenate the resulting data frames
-    result_hima_late_df <- bind_rows(result_hima_late, .id = "omic_layer")
+    result_hidimum_late_df <- bind_rows(result_hidimum_late, .id = "omic_layer")
 
     # Add key details
-    result_hima_late_df <- result_hima_late_df |>
+    result_hidimum_late_df <- result_hidimum_late_df |>
       dplyr::mutate(
         multiomic_mthd = "Late Integration",
         mediation_mthd = "HIMA") |>
@@ -420,7 +433,7 @@ hidimum <- function(exposure,
                     everything())
 
     # Filter to significant features only and scale % total effect to 100
-    result_hima_late_df <- result_hima_late_df |>
+    result_hidimum_late_df <- result_hidimum_late_df |>
       filter(BH.FDR < bh.fdr) |>
       mutate(pte = 100*`% total effect`/sum(`% total effect`),
              sig = if_else(BH.FDR < bh.fdr, 1, 0)) |>
@@ -429,7 +442,7 @@ hidimum <- function(exposure,
       mutate(integration = integration)
 
     # Return the final table
-    return(result_hima_late_df)
+    return(result_hidimum_late_df)
   }
 }
 

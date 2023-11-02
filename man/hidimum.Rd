@@ -14,7 +14,6 @@ hidimum(
   integration,
   n_boot,
   bh.fdr = 0.05,
-  ...,
   n_cores = NULL
 )
 }

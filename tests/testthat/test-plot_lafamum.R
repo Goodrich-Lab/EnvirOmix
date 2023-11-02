@@ -16,7 +16,7 @@ test_that("plot_lafamum", {
   omics_lst <- simulated_data[-which(names(simulated_data) == "phenotype")]
 
   # Run Analysis
-  result_hima_early <- lafamum(exposure = exposure,
+  result_lafamum_early <- lafamum(exposure = exposure,
                                outcome  = outcome,
                                omics_lst = omics_lst,
                                covs = covs,
@@ -25,7 +25,7 @@ test_that("plot_lafamum", {
 
 
   # Plot results
-  plotout <- plot_lafamum(result_hima_early)
+  plotout <- plot_lafamum(result_lafamum_early)
 
   # Test that plot was created
   testthat::expect_equal(object = length(plotout), expected = 9)

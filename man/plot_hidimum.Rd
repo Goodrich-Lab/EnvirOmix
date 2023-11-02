@@ -4,10 +4,10 @@
 \alias{plot_hidimum}
 \title{Plot for the High Dimensional Multiomic Mediation Analysis}
 \usage{
-plot_hidimum(result_hima)
+plot_hidimum(result_hidimum)
 }
 \arguments{
-\item{result_hima}{an output dataframe from the hidimum analysis}
+\item{result_hidimum}{an output dataframe from the hidimum analysis}
 }
 \value{
 a ggplot figure.

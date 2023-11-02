@@ -27,21 +27,19 @@ test_that("test hidimum", {
   }
 
   ## Early Run Analysis ----
-  result_hima_early <- hidimum(exposure = exposure,
+  result_hidimum_early <- hidimum(exposure = exposure,
                                outcome = outcome,
                                omics_lst = omics_lst,
                                covs = covs,
                                Y.family = "gaussian",
                                M.family = "gaussian",
-                               integration = "early",
-                               n_cores = num_workers)
+                               integration = "early")
 
   ### Test Early -------
-  testthat::expect_equal(object = ncol(result_hima_early),
-                         expected = 15)
+  testthat::expect_equal(object = ncol(result_hidimum_early), expected = 15)
 
   ## Intermediate Run Analysis ----
-  result_hima_int <- hidimum(exposure = exposure,
+  result_hidimum_int <- hidimum(exposure = exposure,
                              outcome = outcome,
                              omics_lst = omics_lst,
                              covs = covs,
@@ -52,12 +50,11 @@ test_that("test hidimum", {
                              n_cores = num_workers)
 
   ### Test intermediate -------
-  testthat::expect_equal(object = ncol(result_hima_int),
-                         expected = 16)
-  testthat::expect_gt(object = nrow(result_hima_int), expected = 1)
+  testthat::expect_equal(object = ncol(result_hidimum_int), expected = 16)
+  testthat::expect_gt(object = nrow(result_hidimum_int), expected = 1)
 
   ## Late Run Analysis ----
-  result_hima_int <- hidimum(exposure = exposure,
+  result_hidimum_int <- hidimum(exposure = exposure,
                              outcome = outcome,
                              omics_lst = omics_lst,
                              covs = covs,
@@ -66,8 +63,7 @@ test_that("test hidimum", {
                              integration = "late")
 
   ### Test late -------
-  testthat::expect_equal(object = ncol(result_hima_int),
-                         expected = 14)
-  testthat::expect_gt(object = nrow(result_hima_int), expected = 1)
+  testthat::expect_equal(object = ncol(result_hidimum_int), expected = 14)
+  testthat::expect_gt(object = nrow(result_hidimum_int), expected = 1)
 
 })

@@ -16,15 +16,14 @@ test_that("lafamum early", {
   omics_lst <- simulated_data[-which(names(simulated_data) == "phenotype")]
 
   # Run Analysis
-  result_hima_early <- lafamum(exposure = exposure,
+  result_hidimum_early <- lafamum(exposure = exposure,
                                outcome  = outcome,
                                omics_lst = omics_lst,
                                covs = covs,
                                Y.family = "gaussian",
                                integration = "early")
 
-  testthat::expect_equal(object = length(result_hima_early),
-                         expected = 3)
+  testthat::expect_equal(object = length(result_hidimum_early), expected = 3)
 })
 
 
@@ -47,14 +46,14 @@ test_that("lafamum intermediate", {
   omics_lst <- simulated_data[-which(names(simulated_data) == "phenotype")]
 
   # Run Analysis
-  result_hima_int <- lafamum(exposure = exposure,
+  result_hidimum_int <- lafamum(exposure = exposure,
                              outcome = outcome,
                              omics_lst = omics_lst,
                              covs = covs,
                              Y.family = "gaussian",
                              integration = "intermediate")
 
-  testthat::expect_equal(object = length(result_hima_int),
+  testthat::expect_equal(object = length(result_hidimum_int),
                          expected = 3)
 })
 
@@ -77,13 +76,13 @@ test_that("lafamum late", {
   omics_lst <- simulated_data[-which(names(simulated_data) == "phenotype")]
 
   # Run Analysis
-  result_hima_late <- lafamum(exposure = exposure,
+  result_hidimum_late <- lafamum(exposure = exposure,
                              outcome = outcome,
                              omics_lst = omics_lst,
                              covs = covs,
                              Y.family = "gaussian",
                              integration = "late")
 
-  testthat::expect_equal(object = length(result_hima_late),
+  testthat::expect_equal(object = length(result_hidimum_late),
                          expected = 3)
 })

@@ -2,7 +2,7 @@
 #'
 #' Given a tidy dataframe summarizing the results of HIMA analysis
 #'
-#' @param result_hima  an output dataframe from the hidimum analysis
+#' @param result_hidimum  an output dataframe from the hidimum analysis
 #'
 #' @return a ggplot figure.
 #'
@@ -13,18 +13,20 @@
 #'
 #' @export
 #'
-plot_hidimum <- function(result_hima) {
+plot_hidimum <- function(result_hidimum) {
+  name <- value <- omic_layer <- NULL
+
   # Pivot longer for figure
-  result_hima_long <- result_hima |>
-    rename(Alpha = alpha,
-           Beta = beta) |>
-    pivot_longer(cols = c(Alpha, Beta,`TME (%)`),
+  result_hidimum_long <- result_hidimum |>
+    rename("Alpha" = "alpha",
+           "Beta" = "beta") |>
+    pivot_longer(cols = c("Alpha", "Beta","TME (%)"),
                  names_to = "name") |>
     mutate(name = factor(name, levels = c("Alpha", "Beta", "TME (%)")))
 
   # Plot features
-  p <- ggplot(result_hima_long,
-              aes(x = fct_inorder(ftr_name),
+  p <- ggplot(result_hidimum_long,
+              aes(x = fct_inorder("ftr_name"),
                   y = value,
                   fill = omic_layer)) +
     geom_bar(stat = "identity") +

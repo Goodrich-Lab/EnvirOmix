@@ -16,7 +16,7 @@ test_that("plot_hidimum", {
   omics_lst <- simulated_data[-which(names(simulated_data) == "phenotype")]
 
   # Run Analysis
-  result_hima_early <- hidimum(exposure = exposure,
+  result_hidimum_early <- hidimum(exposure = exposure,
                                outcome = outcome,
                                omics_lst = omics_lst,
                                covs = covs,
@@ -25,7 +25,7 @@ test_that("plot_hidimum", {
                                integration = "early")
 
   # Create Plot
-  plotout <- plot_hidimum(result_hima_early)
+  plotout <- plot_hidimum(result_hidimum_early)
 
   # Test that plot was created
   testthat::expect_equal(object = length(plotout), expected = 9)

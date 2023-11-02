@@ -55,6 +55,12 @@ lafamum <- function(exposure,
                     jive.rankJ = NULL,
                     jive.rankA = NULL) {
 
+  # Set all of these variables to NULL to fix message that they are not found
+  `% Total Effect scaled` <- `% total effect` <- `TME (%)` <- Alpha <-
+    BH.FDR <- Beta <- Correlation <- feature <- ftr_name <- in_ind_omic <-
+    lf_named <- lf_num <- lf_numeric <- lf_ordered <- name <- omic_layer <-
+    omic_num <- omic_pc <- te_direction <- value <- var <- NULL
+
   # Give error if covs is NULL
   if (is.null(covs)) {
     stop("Analysis without covariates is not currently supported.
@@ -97,7 +103,7 @@ lafamum <- function(exposure,
 
     # ii. Perform HIMA with PCs as mediator----
 
-    result_hima_comb_pc <- hima(X  = exposure,
+    result_hidimum_comb_pc <- hima(X  = exposure,
                                 Y = outcome,
                                 M = PCs,
                                 COV.XM = covs,
@@ -108,11 +114,11 @@ lafamum <- function(exposure,
 
 
     # Change to tibble and select significant PCs
-    result_hima_pca_early <- as_tibble(result_hima_comb_pc, rownames = "lf_num") |>
+    result_hidimum_pca_early <- as_tibble(result_hidimum_comb_pc, rownames = "lf_num") |>
       filter(BH.FDR < fdr.level)
 
     # Filter Significant PCs, Create scaled %TE variable
-    result_hima_pca_early_sig <- result_hima_pca_early |>
+    result_hidimum_pca_early_sig <- result_hidimum_pca_early |>
       mutate(
         te_direction = if_else(beta<0, -1*`% total effect`, `% total effect`),
         `% Total Effect scaled` = 100*`% total effect`/sum(`% total effect`) |>
@@ -137,14 +143,14 @@ lafamum <- function(exposure,
 
     # Select only significant PCs
     ftr_cor_sig_pcs <- var.cor[,(colnames(var.cor) %in%
-                                   result_hima_pca_early_sig$lf_num)]
+                                   result_hidimum_pca_early_sig$lf_num)]
 
     ftr_cor_sig_pcs_df <- ftr_cor_sig_pcs |>
       as_tibble(rownames = "feature") |>
       left_join(meta_df, by = c("feature" = "ftr_name"))
 
 
-    res = list(result_hima_pca_early_sig = result_hima_pca_early_sig,
+    res = list(result_hidimum_pca_early_sig = result_hidimum_pca_early_sig,
                result_ftr_cor_sig_pcs_early = ftr_cor_sig_pcs_df,
                integration_type = "Early")
     return(res)
@@ -163,11 +169,7 @@ lafamum <- function(exposure,
     if (is.null(jive.rankJ) | is.null(jive.rankA)) {
       # Message
       message(paste0("Step A) Starting JIVE analysis...   (",
-                     Sys.time() |>
-                       format("%H:%M:%S") |>
-                       str_split(":") |> unlist()[1:3] |>
-                       paste(collapse = ":"),
-                     ")\n"))
+                     format(Sys.time(), "%H:%M:%S"), ")\n"))
       # Run JIVE without ranks given
       result_jive2 <- jive(data = omics_t,
                            method = "given",
@@ -178,11 +180,7 @@ lafamum <- function(exposure,
     } else {
       # Message
       message(paste0("Step A) Starting JIVE analysis with ranks given...   (",
-                     Sys.time() |>
-                       format("%H:%M:%S") |>
-                       str_split(":") |> unlist()[1:3] |>
-                       paste(collapse = ":"),
-                     ")\n"))
+                     format(Sys.time(), "%H:%M:%S"), ")\n"))
 
     result_jive2 <- jive(data = omics_t,
                          rankJ = jive.rankJ,
@@ -250,17 +248,13 @@ lafamum <- function(exposure,
 
     # run mediation analysis------
     message(paste0("Step B) Starting hima on JIVE factors...    (",
-                   Sys.time() |>
-                     format("%H:%M:%S") |>
-                     str_split(":") |> unlist()[1:3] |>
-                     paste(collapse = ":"),
-                   ")\n"))
+                   format(Sys.time(), "%H:%M:%S"), ")\n"))
 
     # Select only HH:MM:SS from Sys.time()
 
 
 
-    result_hima_jive <- hima(X = exposure,
+    result_hidimum_jive <- hima(X = exposure,
                              Y = outcome,
                              M = factors_jive,
                              COV.MY = covs,
@@ -271,17 +265,17 @@ lafamum <- function(exposure,
                              scale = FALSE)
 
     # Modify and filter significant
-    result_hima_jive_1 <- result_hima_jive |>
+    result_hidimum_jive_1 <- result_hidimum_jive |>
       rownames_to_column("lf_num") |>
       mutate(multiomic_mthd = "Intermediate",
              ind_joint = str_split_fixed(lf_num, fixed("_"), 2)[,1],
              ind_joint_num = case_when(ind_joint == "Joint" ~ 1,
                                        ind_joint == "methylome" ~ 2,
                                        ind_joint == "transcriptome" ~ 3)) |>
-      dplyr::select(multiomic_mthd, everything())
+      dplyr::select("multiomic_mthd", everything())
 
     # Filter significant components and create scaled %TE variable
-    result_hima_jive_sig <-  result_hima_jive_1 |>
+    result_hidimum_jive_sig <-  result_hidimum_jive_1 |>
       filter(BH.FDR<fdr.level) |>
       mutate(`% Total Effect scaled` =
                round(100*`% total effect`/sum(`% total effect`),1),
@@ -306,13 +300,13 @@ lafamum <- function(exposure,
 
     # Select only significant PCs
     ftr_cor_sig_pcs_jive <- var.cor[,(colnames(var.cor) %in%
-                                        result_hima_jive_sig$lf_num)]
+                                        result_hidimum_jive_sig$lf_num)]
 
     ftr_cor_sig_pcs_jive_df <- ftr_cor_sig_pcs_jive |>
       as_tibble(rownames = "feature") |>
       left_join(meta_df, by = c("feature" = "ftr_name"))
 
-    res = list(result_hima_jive_sig = result_hima_jive_sig,
+    res = list(result_hidimum_jive_sig = result_hidimum_jive_sig,
                result_ftr_cor_sig_pcs_jive = ftr_cor_sig_pcs_jive_df,
                integration = "Intermediate")
     return(res)
@@ -373,7 +367,7 @@ lafamum <- function(exposure,
       bind_rows()
 
     # ii. run HIMA with the current dataset and principal components ----
-    result_hima_late_integration <- hima(X = exposure,
+    result_hidimum_late_integration <- hima(X = exposure,
                                          Y = outcome,
                                          M = scores_df,
                                          COV.MY = covs,
@@ -383,14 +377,14 @@ lafamum <- function(exposure,
                                          scale = FALSE)
 
     # Filter significant pcs, create scaled %TE variable
-    result_hima_late_sig <- result_hima_late_integration |>
+    result_hidimum_late_sig <- result_hidimum_late_integration |>
       as_tibble(rownames = "lf_num") |>
       filter(BH.FDR < 0.05) |>
       mutate(
         te_direction = if_else(beta<0, -1*`% total effect`, `% total effect`),
         `% Total Effect scaled` = 100*`% total effect`/sum(`% total effect`))
 
-    result_hima_late_sig <- result_hima_late_sig  |>
+    result_hidimum_late_sig <- result_hidimum_late_sig  |>
       mutate(lf_numeric = str_split_fixed(lf_num, fixed("_"), 2)[,2],
              omic_layer = str_split_fixed(lf_num, fixed("_"), 2)[,1] |>
                str_to_sentence(),
@@ -399,7 +393,7 @@ lafamum <- function(exposure,
              omic_pc = str_c(omic_layer, " ", lf_numeric) |>
                str_replace("PC", "Comp. ")) |>
       mutate(lf_ordered = forcats::fct_reorder(omic_pc, `te_direction`)) |>
-      dplyr::select(multiomic_mthd, omic_pc, omic_layer, lf_num, lf_ordered,
+      dplyr::select("multiomic_mthd", omic_pc, omic_layer, lf_num, lf_ordered,
                     alpha, beta, `% Total Effect scaled`) |>
       rename(Alpha = alpha,
              Beta = beta,
@@ -426,11 +420,11 @@ lafamum <- function(exposure,
 
     # Select only significant PCs
     ftr_cor_sig_pcs_late <- var.cor |>
-      dplyr::select(result_hima_late_sig$lf_num) |>
+      dplyr::select(result_hidimum_late_sig$lf_num) |>
       as_tibble(rownames = "feature") |>
       left_join(meta_df, by = c("feature" = "ftr_name"))
 
-    res = list(result_hima_late_sig = result_hima_late_sig,
+    res = list(result_hidimum_late_sig = result_hidimum_late_sig,
                result_ftr_cor_sig_pcs_late = ftr_cor_sig_pcs_late,
                intergration_type = "Late")
     return(res)
