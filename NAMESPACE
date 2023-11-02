@@ -2,6 +2,8 @@
 
 export(hidimum)
 import(dplyr)
+import(forcats)
+import(ggplot2)
 import(purrr)
 import(tibble)
 import(tidyr)

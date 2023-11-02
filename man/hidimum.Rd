@@ -2,7 +2,7 @@
 % Please edit documentation in R/hidimum.R
 \name{hidimum}
 \alias{hidimum}
-\title{Conducts High Dimensional Mediation Analysis with Early Integration}
+\title{High Dimensional Multiomic Mediation (hidimum)}
 \usage{
 hidimum(
   exposure,

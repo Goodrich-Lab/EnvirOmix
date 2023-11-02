@@ -112,7 +112,7 @@ hidimum <- function(exposure,
       mutate(pte = 100*`% total effect`/sum(`% total effect`),
              sig = if_else(BH.FDR < 0.05, 1, 0)) %>%
       rename(ie = 'alpha*beta',
-             `TE (%)` = pte)
+             `TME (%)` = pte)
 
     # Merge results with feature metadata
     result_hima_early <- result_hima_early %>%
@@ -332,7 +332,7 @@ hidimum <- function(exposure,
       dplyr::rename(ftr_name = feature_name,
                     ie = indirect,
                     beta = beta_bootstrap,
-                    `TE (%)` = pte) %>%
+                    `TME (%)` = pte) %>%
       mutate(integration = integration)
 
     # Return message if intermediate_int_res has zero rows
@@ -395,7 +395,7 @@ hidimum <- function(exposure,
       mutate(pte = 100*`% total effect`/sum(`% total effect`),
              sig = if_else(BH.FDR < 0.05, 1, 0)) %>%
       rename(ie = 'alpha*beta',
-             `TE (%)` = pte) %>%
+             `TME (%)` = pte) %>%
       mutate(integration = integration)
 
     # Return the final table

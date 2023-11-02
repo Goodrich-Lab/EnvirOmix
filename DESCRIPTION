@@ -27,11 +27,13 @@ Imports:
     dplyr, 
     purrr, 
     tidyr, 
-    stringr, 
+    forcats,
+    stringr,
     HIMA, 
     xtune, 
     boot, 
     parallel, 
     epiomics, 
     janitor, 
-    RMediation
+    RMediation, 
+    ggplot2
