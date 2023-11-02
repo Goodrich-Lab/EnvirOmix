@@ -165,7 +165,7 @@ lafamum <- function(exposure,
       message(paste0("Step A) Starting JIVE analysis...   (",
                      Sys.time() %>%
                        format("%H:%M:%S") %>%
-                       str_split(":") %>% unlist() %>% .[1:3] %>%
+                       str_split(":") %>% unlist()[1:3] %>%
                        paste(collapse = ":"),
                      ")\n"))
       # Run JIVE without ranks given
@@ -180,7 +180,7 @@ lafamum <- function(exposure,
       message(paste0("Step A) Starting JIVE analysis with ranks given...   (",
                      Sys.time() %>%
                        format("%H:%M:%S") %>%
-                       str_split(":") %>% unlist() %>% .[1:3] %>%
+                       str_split(":") %>% unlist()[1:3] %>%
                        paste(collapse = ":"),
                      ")\n"))
 
@@ -252,9 +252,7 @@ lafamum <- function(exposure,
     message(paste0("Step B) Starting hima on JIVE factors...    (",
                    Sys.time() %>%
                      format("%H:%M:%S") %>%
-                     str_split(":") %>%
-                     unlist() %>%
-                     .[1:3] %>%
+                     str_split(":") %>% unlist()[1:3] %>%
                      paste(collapse = ":"),
                    ")\n"))
 
@@ -405,7 +403,7 @@ lafamum <- function(exposure,
                     alpha, beta, `% Total Effect scaled`) %>%
       rename(Alpha = alpha,
              Beta = beta,
-             `TME (%)` = `% Total Effect scaled`)%>%
+             `TME (%)` = `% Total Effect scaled`) %>%
       mutate(omic_num = case_when(str_detect(lf_num, "meth") ~ 1,
                                   str_detect(lf_num, "transc") ~ 2,
                                   str_detect(lf_num, "miR") ~ 3,

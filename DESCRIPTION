@@ -23,7 +23,6 @@ Suggests:
 Config/testthat/edition: 3
 biocViews: BiocGenerics, ComplexHeatmap, IRange, qvalue, S4Vectors
 Imports: 
-    magrittr,
     tibble, 
     dplyr, 
     purrr, 
@@ -31,18 +30,12 @@ Imports:
     forcats,
     stringr,
     ggplot2, 
+    cowplot,
+    ggh4x,
     HIMA, 
     xtune, 
     r.jive,
     boot, 
     parallel, 
     epiomics, 
-    janitor, 
-    RMediation, 
-    BiocManager, 
-    BiocGenerics, 
-    ComplexHeatmap, 
-    IRanges,
-    qvalue, 
-    S4Vectors
-    
+    RMediation

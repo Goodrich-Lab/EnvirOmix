@@ -1,5 +1,5 @@
-# early integration hidimum ----
-test_that("hidimum early", {
+# hidimum with Early, intermediate, and late integration ----
+test_that("test hidimum", {
   simulated_data <- simulated_data
   # Define exposure and outcome name
   covars <- c("e3_sex_None", "hs_child_age_yrs_None")

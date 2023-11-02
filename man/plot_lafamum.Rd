@@ -4,12 +4,21 @@
 \alias{plot_lafamum}
 \title{Plot result of mediation analysis with latent factors}
 \usage{
-plot_lafamum(lafamum_res)
+plot_lafamum(lafamum_res, n_features = 10, plot_type = "all")
 }
 \arguments{
 \item{lafamum_res}{A list including two tidy dataframes
 summarizing the results of HIMA analysis
 and one vector indicating integration type}
+
+\item{n_features}{Number of top features from each latent factor to be
+plotted. May not exactly be related to the total number of features plotted
+due to overlapping features across latent factors.}
+
+\item{plot_type}{One of "all", "mediation", or "features".
+If "all" is selected (the default), the mediation bargraph and heatmap of
+individual features is plotted together. If "mediation" or "features"
+is selected, only the mediation or the features heatmap is plotted.}
 }
 \value{
 a figure of the result of mediation with latent factors in given integration

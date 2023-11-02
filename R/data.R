@@ -17,23 +17,23 @@
 #'     }
 #'   }
 #'   \item{methylome}{
-#'     A numerical matrix [420x28] with row names representing individual
+#'     A numerical matrix of dimensions 420x28, with row names representing individual
 #'     IDs and column names representing methylation sites.
 #'   }
 #'   \item{transcriptome}{
-#'     A numerical matrix [420x28] with row names representing individual
+#'     A numerical matrix of dimensions 420x28, with row names representing individual
 #'      IDs and column names representing transcript sites.
 #'   }
 #'   \item{miRNA}{
-#'     A numerical matrix [420x28] with row names representing individual
+#'     A numerical matrix of dimensions 420x28, with row names representing individual
 #'      IDs and column names representing miRNA sites.
 #'   }
 #'   \item{proteome}{
-#'     A numerical matrix [420x28] with row names representing individual
+#'     A numerical matrix of dimensions 420x28, with row names representing individual
 #'     IDs and column names representing proteins.
 #'   }
 #'   \item{metabolome}{
-#'     A numerical matrix [420x28] with row names representing individual
+#'     A numerical matrix of dimensions 420x28, with row names representing individual
 #'     IDs and column names representing metabolites.
 #'   }
 #' }

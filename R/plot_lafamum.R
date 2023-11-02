@@ -8,20 +8,34 @@
 #' @param lafamum_res A list including two tidy dataframes
 #' summarizing the results of HIMA analysis
 #' and one vector indicating integration type
-
+#' @param n_features Number of top features from each latent factor to be
+#' plotted. May not exactly be related to the total number of features plotted
+#' due to overlapping features across latent factors.
+#' @param plot_type One of "all", "mediation", or "features".
+#' If "all" is selected (the default), the mediation bargraph and heatmap of
+#' individual features is plotted together. If "mediation" or "features"
+#' is selected, only the mediation or the features heatmap is plotted.
 #'
 #' @return a figure of the result of mediation with latent factors in given integration
 #'
 #' @import dplyr
 #' @importFrom dplyr left_join
 #' @importFrom ggplot2 ggplot
+#' @importFrom cowplot plot_grid
 #'
 #' @export
 #'
-plot_lafamum <- function(lafamum_res) {
+plot_lafamum <- function(lafamum_res,
+                         n_features = 10,
+                         plot_type = "all") {
+
+  # Make sure that plot_type is one of all, mediation, or features
+  if(!plot_type %in% c("all", "mediation", "features")) {
+    stop("plot_type must be one of all, mediation, or features")
+  }
 
   # Panel A Bargraph of mediation effects of latent factors --------------
-  med_long <- lafamum_res[[1]]%>%
+  med_long <- lafamum_res[[1]] %>%
     pivot_longer(cols = c(Alpha, Beta, `TME (%)`))
 
   # Plot
@@ -47,13 +61,15 @@ plot_lafamum <- function(lafamum_res) {
   # Panel B: heatmap of correlation of features vs PC's --------------
 
   # Select features for plots -------
-  ## Select rows with values in the top 10 of their respective columns
+  # Select Features
+  lafamum_res_ftrs <- lafamum_res[[2]] %>%
+    select(-omic_layer, -omic_num) %>%
+    filter(!rowSums(is.na(.)) == ncol(.)) %>%
+    column_to_rownames("feature")
 
-  top <- apply(lafamum_res[[2]] %>%
-                 select(-omic_layer, -omic_num) %>%
-                 janitor::remove_empty(which = "rows") %>%
-                 column_to_rownames("feature"), 2,
-               function(x) x %in% tail(sort(abs(x)), 10))
+  ## Select rows with values in the top 10 of their respective columns
+  top <- apply(lafamum_res_ftrs, 2,
+               function(x) x %in% tail(sort(abs(x)), n_features))
 
   ## Filter selected rows
   ftr_cor_sig_lf_top_ft <- lafamum_res[[2]][which(rowSums(top) > 0), ]
@@ -88,8 +104,6 @@ plot_lafamum <- function(lafamum_res) {
                                  str_detect(lf_num, "met") ~ 5,
                                  TRUE ~ 0))
 
-
-  # Plot
   panel_b <- ggplot(data = panel_b_dat_top_ft,
                     aes(y = feature,
                         x = lf_ordered,
@@ -112,12 +126,16 @@ plot_lafamum <- function(lafamum_res) {
       legend.position = "none",
       text = element_text(size = 8))
 
+  # Return plots
+  if(plot_type == "mediation") return(panel_a)
+  if(plot_type == "features") return(panel_b)
+  if(plot_type == "all") {
   # Combine Figures
   p <- cowplot::plot_grid(
     NULL, panel_a,  NULL, panel_b,
     ncol = 1, align = "v", axis = "lr",
     rel_heights  = c(.05, .6, .1, 1.75),
     labels = c("a)","", "b) "))
-
   return(p)
+  }
 }

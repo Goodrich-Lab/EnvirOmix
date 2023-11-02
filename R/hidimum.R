@@ -6,16 +6,21 @@
 #'
 #' @param exposure A numeric vector for the exposure variable
 #' @param outcome A numeric vector for the outcome variable
-#' @param omics A list of numeric matrices representing omics data
+#' @param omics_lst A list of numeric matrices representing omics data
 #' @param covs A numeric matrix representing the covariates
 #' @param Y.family A character string indicating the family of the outcome
 #' @param M.family A character string indicating the family of the mediator
 #' @param integration A character string indicating the integration method (one
 #' of early, intermediate, or late)
+#' @param bh.fdr Bonferonni-Hochberg FDR correction threshold for selecting
+#' significant features from HIMA for early and late integration. Defaults
+#' to 0.05.
 #' @param n_boot number indicating number of bootstrap estimates to perform
 #' for calculating the se of the mediation effect (only applies for
 #' intermediate integration, otherwise, ignored)
-#' @param ... Additional arguments to pass to boot::boot
+#' @param n_cores Optional, number of cores for parallelization for
+#' bootstrapping for intermediate integration. If unspecified and
+#' integration = intermediate, defaults to parallel::detectCores().
 #'
 #' @return A tidy dataframe summarizing the results of HIMA analysis
 #'
@@ -24,13 +29,13 @@
 #' @import purrr
 #' @import tidyr
 #' @importFrom stringr str_detect
-#' @importFrom stats gaussian
+#' @importFrom stats gaussian binomial coef glm lm sd
+#' @importFrom utils capture.output tail
 #' @importFrom HIMA hima
 #' @importFrom xtune xtune estimateVariance
 #' @importFrom boot boot
 #' @importFrom parallel detectCores
 #' @importFrom epiomics owas
-#' @importFrom janitor clean_names
 #' @importFrom RMediation medci
 #
 #' @export
@@ -43,8 +48,17 @@ hidimum <- function(exposure,
                     M.family = "gaussian",
                     integration,
                     n_boot,
-                    ...,
+                    bh.fdr = 0.05,
                     n_cores = NULL) {
+
+  # Set all of these variables to NULL to fix message that they are not found
+  `% Total Effect scaled` <- `% total effect` <- Alpha <- Beta <-
+    `Correlation TME (%)` <- beta_bootstrap <- data <- estimate <- feature <-
+    feature_name <- ftr_name <- in_ind_omic <- indirect <- lcl <- lf_named <-
+    lf_num <- lf_numeric <- lf_ordered <- name <- omic_layer <- omic_num <-
+    omic_pc <- pte <- res <-
+    sig <- te_direction <- ucl <- value <- var <- NULL
+
 
   # Give error if integration is not early, intermediate, or late
   if (!(integration %in% c("early", "intermediate", "late"))) {
@@ -110,14 +124,14 @@ hidimum <- function(exposure,
       dplyr::mutate(
         multiomic_mthd = "Early Integration",
         mediation_mthd = "HIMA") %>%
-      dplyr::select(multiomic_mthd, mediation_mthd,
-                    ftr_name,
+      dplyr::select("multiomic_mthd", "mediation_mthd",
+                    "ftr_name",
                     everything())
     # Filter to significant features only and scale % total effect to 100
     result_hima_early <- result_hima_early %>%
-      filter(BH.FDR < 0.05) %>%
+      filter(BH.FDR < bh.fdr) %>%
       mutate(pte = 100*`% total effect`/sum(`% total effect`),
-             sig = if_else(BH.FDR < 0.05, 1, 0)) %>%
+             sig = if_else(BH.FDR < bh.fdr, 1, 0)) %>%
       rename(ie = 'alpha*beta',
              `TME (%)` = pte)
 
@@ -186,9 +200,9 @@ hidimum <- function(exposure,
                               covars = colnames(covs),
                               var = "exposure",
                               var_exposure_or_outcome = "exposure") %>%
-      dplyr::select(feature_name, estimate, se) %>%
-      dplyr::rename(alpha = estimate,
-                    alpha_se = se)
+      dplyr::select("feature_name", "estimate", "se") %>%
+      dplyr::rename("alpha" = "estimate",
+                    "alpha_se" = "se")
 
     # 2) M--> Y: select features associated with the outcome using group lasso ----
     # x+M-->Y Glasso
@@ -244,7 +258,7 @@ hidimum <- function(exposure,
           xtune_betas <- as_tibble(as.matrix(xtune.fit$beta.est),
                                    rownames = "feature_name") %>%
             dplyr::filter(feature_name %in% colnames(omics_df)) %>%
-            dplyr::select(s1) %>%
+            dplyr::select("s1") %>%
             as.matrix()
           # Fix issue where sometimes lasso returns a null matrix
           if(sum(dim(xtune_betas) == c(nrow(external_info), 1))==2){
@@ -321,22 +335,21 @@ hidimum <- function(exposure,
                                                  se.x = .x$alpha_se,
                                                  mu.y = .x$beta_bootstrap,
                                                  se.y = .x$beta_se,
-                                                 type = "dop") %>%
+                                                 type = "MC") %>%
                                 unlist() %>% t() %>% as_tibble())) %>%
       unnest(c(res, data)) %>%
-      ungroup() %>%
-      janitor::clean_names()
+      ungroup()
 
     # Modify results
-    intermediate_int_res <- int_med_res %>%
-      janitor::clean_names() %>%
-      rename(indirect = "estimate",
-             ind_effect_se = "se",
-             lcl = x95_percent_ci1,
-             ucl = x95_percent_ci2) %>%
+    intermediate_int_res <- int_med_res |>
+      rename_with(~c("lcl", "ucl")[seq_along(.)], tidyr::contains("CI.")) %>%
+      rename(indirect = "Estimate",
+             ind_effect_se = "SE") %>%
       mutate(gamma = gamma_est,
              pte = (indirect)/gamma,
-             sig = if_else(lcl>0|ucl<0, 1, 0))
+             sig = if_else(lcl>0|ucl<0, 1, 0)) |>
+      dplyr::select(-contains(" Error"))
+
 
     # Filter to significant features only and scale % total effect to 100
     intermediate_int_res <- intermediate_int_res %>%
@@ -401,15 +414,15 @@ hidimum <- function(exposure,
       dplyr::mutate(
         multiomic_mthd = "Late Integration",
         mediation_mthd = "HIMA") %>%
-      dplyr::select(multiomic_mthd, mediation_mthd,
-                    omic_layer, ftr_name,
+      dplyr::select("multiomic_mthd", "mediation_mthd",
+                    "omic_layer", "ftr_name",
                     everything())
 
     # Filter to significant features only and scale % total effect to 100
     result_hima_late_df <- result_hima_late_df %>%
-      filter(BH.FDR < 0.05) %>%
+      filter(BH.FDR < bh.fdr) %>%
       mutate(pte = 100*`% total effect`/sum(`% total effect`),
-             sig = if_else(BH.FDR < 0.05, 1, 0)) %>%
+             sig = if_else(BH.FDR < bh.fdr, 1, 0)) %>%
       rename(ie = 'alpha*beta',
              `TME (%)` = pte) %>%
       mutate(integration = integration)

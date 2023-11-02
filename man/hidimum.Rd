@@ -13,6 +13,7 @@ hidimum(
   M.family = "gaussian",
   integration,
   n_boot,
+  bh.fdr = 0.05,
   ...,
   n_cores = NULL
 )
@@ -21,6 +22,8 @@ hidimum(
 \item{exposure}{A numeric vector for the exposure variable}
 
 \item{outcome}{A numeric vector for the outcome variable}
+
+\item{omics_lst}{A list of numeric matrices representing omics data}
 
 \item{covs}{A numeric matrix representing the covariates}
 
@@ -35,9 +38,13 @@ of early, intermediate, or late)}
 for calculating the se of the mediation effect (only applies for
 intermediate integration, otherwise, ignored)}
 
-\item{...}{Additional arguments to pass to boot::boot}
+\item{bh.fdr}{Bonferonni-Hochberg FDR correction threshold for selecting
+significant features from HIMA for early and late integration. Defaults
+to 0.05.}
 
-\item{omics}{A list of numeric matrices representing omics data}
+\item{n_cores}{Optional, number of cores for parallelization for
+bootstrapping for intermediate integration. If unspecified and
+integration = intermediate, defaults to parallel::detectCores().}
 }
 \value{
 A tidy dataframe summarizing the results of HIMA analysis
