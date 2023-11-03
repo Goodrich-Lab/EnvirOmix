@@ -14,7 +14,7 @@
 #' @export
 #'
 plot_hidimum <- function(result_hidimum) {
-  name <- value <- omic_layer <- NULL
+  name <- ftr_name <- value <- omic_layer <- NULL
 
   # Pivot longer for figure
   result_hidimum_long <- result_hidimum |>
@@ -26,7 +26,7 @@ plot_hidimum <- function(result_hidimum) {
 
   # Plot features
   p <- ggplot(result_hidimum_long,
-              aes(x = fct_inorder("ftr_name"),
+              aes(x = fct_inorder(ftr_name),
                   y = value,
                   fill = omic_layer)) +
     geom_bar(stat = "identity") +
@@ -42,7 +42,7 @@ plot_hidimum <- function(result_hidimum) {
       axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5),
       legend.title = element_blank(),
       legend.position = "bottom", # Place the legend at the bottom
-      legend.justification = c(1, 0))
+      legend.justification = c(.5, 0))
 
   return(p)
 }
