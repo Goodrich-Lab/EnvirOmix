@@ -26,7 +26,7 @@ test_that("test hidimum", {
     num_workers <- parallel::detectCores()
   }
 
-  ## Early Run Analysis ----
+  ## Run Early Analysis ----
   result_hidimum_early <- hidimum(exposure = exposure,
                                   outcome = outcome,
                                   omics_lst = omics_lst,
@@ -38,7 +38,7 @@ test_that("test hidimum", {
   ### Test Early -------
   testthat::expect_equal(object = ncol(result_hidimum_early), expected = 15)
 
-  ## Intermediate Run Analysis ----
+  ## Run Intermediate Analysis ----
   set.seed(1234)
   result_hidimum_int <- hidimum(exposure = exposure,
                                 outcome = outcome,
@@ -52,9 +52,9 @@ test_that("test hidimum", {
 
   ### Test intermediate -------
   testthat::expect_equal(object = ncol(result_hidimum_int), expected = 16)
-  testthat::expect_gt(object = nrow(result_hidimum_int), expected = 1)
+  testthat::expect_equal(object = nrow(result_hidimum_int), expected = 140)
 
-  ## Late Run Analysis ----
+  ## Run Late Analysis ----
   result_hidimum_int <- hidimum(exposure = exposure,
                                 outcome = outcome,
                                 omics_lst = omics_lst,
@@ -63,8 +63,24 @@ test_that("test hidimum", {
                                 M.family = "gaussian",
                                 integration = "late")
 
-  ### Test late -------
+  ### Test that late ran -------
   testthat::expect_equal(object = ncol(result_hidimum_int), expected = 14)
-  testthat::expect_gt(object = nrow(result_hidimum_int), expected = 1)
+  testthat::expect_equal(object = nrow(result_hidimum_int), expected = 49)
+
+  # Compare results to HIMA analysis run for a single layer
+  hima_individual <- HIMA::hima(X = exposure,
+                                Y = outcome,
+                                M = omics_lst[[1]],
+                                COV.XM = covs,
+                                Y.family = "gaussian",
+                                M.family = "gaussian",
+                                max.iter = 100000,
+                                scale = FALSE)
+
+  # Subset late analysis to only include the methylome
+  himum_l_m <- result_hidimum_int[result_hidimum_int$omic_layer == "methylome",]
+
+  testthat::expect_equal(object = hima_individual$alpha,
+                         expected = himum_l_m$alpha)
 
 })
