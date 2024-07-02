@@ -129,7 +129,6 @@ hidimum <- function(exposure,
                     everything())
     # Filter to significant features only and scale % total effect to 100
     result_hidimum_early <- result_hidimum_early |>
-      filter(BH.FDR < bh.fdr) |>
       mutate(pte = 100*`% total effect`/sum(`% total effect`),
              sig = if_else(BH.FDR < bh.fdr, 1, 0)) |>
       rename(ie = 'alpha*beta',
@@ -367,7 +366,6 @@ hidimum <- function(exposure,
 
     # Filter to significant features only and scale % total effect to 100
     intermediate_int_res <- intermediate_int_res |>
-      filter(sig == 1) |>
       mutate(pte = 100*pte/sum(pte))
 
     # Rename feature name
@@ -434,7 +432,6 @@ hidimum <- function(exposure,
 
     # Filter to significant features only and scale % total effect to 100
     result_hidimum_late_df <- result_hidimum_late_df |>
-      filter(BH.FDR < bh.fdr) |>
       mutate(pte = 100*`% total effect`/sum(`% total effect`),
              sig = if_else(BH.FDR < bh.fdr, 1, 0)) |>
       rename(ie = 'alpha*beta',
