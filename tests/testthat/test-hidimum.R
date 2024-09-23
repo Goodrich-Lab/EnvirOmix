@@ -35,8 +35,10 @@ test_that("test hidimum", {
                                   M.family = "gaussian",
                                   integration = "early")
 
+  # Save colnames for comparison across methods
+  early_cols <- colnames(result_hidimum_early)
   ### Test Early -------
-  testthat::expect_equal(object = ncol(result_hidimum_early), expected = 15)
+  testthat::expect_equal(object = ncol(result_hidimum_early), expected = 14)
 
   ## Run Intermediate Analysis ----
   set.seed(1234)
@@ -50,12 +52,15 @@ test_that("test hidimum", {
                                 n_boot = num_workers,
                                 n_cores = num_workers)
 
+  # Save colnames for comparison across methods
+  int_cols <- colnames(result_hidimum_int)
+
   ### Test intermediate -------
   testthat::expect_equal(object = ncol(result_hidimum_int), expected = 16)
   testthat::expect_equal(object = nrow(result_hidimum_int), expected = 140)
 
   ## Run Late Analysis ----
-  result_hidimum_int <- hidimum(exposure = exposure,
+  result_hidimum_late <- hidimum(exposure = exposure,
                                 outcome = outcome,
                                 omics_lst = omics_lst,
                                 covs = covs,
@@ -64,8 +69,8 @@ test_that("test hidimum", {
                                 integration = "late")
 
   ### Test that late ran -------
-  testthat::expect_equal(object = ncol(result_hidimum_int), expected = 14)
-  testthat::expect_equal(object = nrow(result_hidimum_int), expected = 49)
+  testthat::expect_equal(object = ncol(result_hidimum_late), expected = 13)
+  testthat::expect_equal(object = nrow(result_hidimum_late), expected = 8)
 
   # Compare results to HIMA analysis run for a single layer
   hima_individual <- HIMA::hima(X = exposure,
@@ -78,9 +83,9 @@ test_that("test hidimum", {
                                 scale = FALSE)
 
   # Subset late analysis to only include the methylome
-  himum_l_m <- result_hidimum_int[result_hidimum_int$omic_layer == "methylome",]
+  himum_l_m <- result_hidimum_late[result_hidimum_late$omic_layer == "methylome",]
 
-  testthat::expect_equal(object = hima_individual$alpha,
-                         expected = himum_l_m$alpha)
+  testthat::expect_equal(object = himum_l_m$alpha,
+                         expected = hima_individual$alpha)
 
 })

@@ -56,7 +56,7 @@ lafamum <- function(exposure,
                     jive.rankA = NULL) {
 
   # Set all of these variables to NULL to fix message that they are not found
-  `% Total Effect scaled` <- `% total effect` <- `TME (%)` <- Alpha <-
+  alpha_hat <- beta_hat <- IDE <- rimp <- `% Total Effect scaled` <- `% total effect` <- `TME (%)` <- Alpha <-
     BH.FDR <- Beta <- Correlation <- feature <- ftr_name <- in_ind_omic <-
     lf_named <- lf_num <- lf_numeric <- lf_ordered <- name <- omic_layer <-
     omic_num <- omic_pc <- te_direction <- value <- var <- NULL
@@ -111,6 +111,15 @@ lafamum <- function(exposure,
                                 Y.family =  Y.family,
                                 M.family = c("gaussian"),
                                 scale = FALSE)
+
+
+    # Rename hima results to be consistent with previous HIMA version results
+    result_hidimum_comb_pc <- result_hidimum_comb_pc |>
+      rename(alpha = alpha_hat,
+             beta = beta_hat,
+             `alpha*beta` = IDE,
+             `% total effect` = rimp,
+             BH.FDR = pmax)
 
 
     # Change to tibble and select significant PCs
@@ -252,8 +261,6 @@ lafamum <- function(exposure,
 
     # Select only HH:MM:SS from Sys.time()
 
-
-
     result_hidimum_jive <- hima(X = exposure,
                              Y = outcome,
                              M = factors_jive,
@@ -263,6 +270,15 @@ lafamum <- function(exposure,
                              M.family = c("gaussian"),
                              verbose = FALSE,
                              scale = FALSE)
+
+
+    # Rename hima results to be consistent with previous HIMA version results
+    result_hidimum_jive <- result_hidimum_jive |>
+      rename(alpha = alpha_hat,
+             beta = beta_hat,
+             `alpha*beta` = IDE,
+             `% total effect` = rimp,
+             BH.FDR = pmax)
 
     # Modify and filter significant
     result_hidimum_jive_1 <- result_hidimum_jive |>
@@ -375,6 +391,14 @@ lafamum <- function(exposure,
                                          Y.family = c("gaussian"),
                                          M.family = c("gaussian"),
                                          scale = FALSE)
+
+    # Rename hima results to be consistent with previous HIMA version results
+    result_hidimum_late_integration <- result_hidimum_late_integration |>
+      rename(alpha = alpha_hat,
+             beta = beta_hat,
+             `alpha*beta` = IDE,
+             `% total effect` = rimp,
+             BH.FDR = pmax)
 
     # Filter significant pcs, create scaled %TE variable
     result_hidimum_late_sig <- result_hidimum_late_integration |>
