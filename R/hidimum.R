@@ -52,9 +52,10 @@ hidimum <- function(exposure,
                     n_cores = NULL) {
 
   # Set all of these variables to NULL to fix message that they are not found
-  `% Total Effect scaled` <- `% total effect` <- Alpha <- Beta <- BH.FDR <-
-    `Correlation TME (%)` <- beta_bootstrap <- data <- estimate <- feature <-
-    feature_name <- ftr_name <- in_ind_omic <- indirect <- lcl <- lf_named <-
+  alpha_hat <- beta_hat <- IDE <- rimp <- `% Total Effect scaled` <-
+    `% total effect` <- Alpha <- Beta <- BH.FDR <- `Correlation TME (%)` <-
+    beta_bootstrap <- data <- estimate <- feature <- feature_name <-
+    ftr_name <- in_ind_omic <- indirect <- lcl <- lf_named <-
     lf_num <- lf_numeric <- lf_ordered <- name <- omic_layer <- omic_num <-
     omic_pc <- pte <- res <- sig <- te_direction <- ucl <- value <- NULL
 
@@ -118,6 +119,14 @@ hidimum <- function(exposure,
                               max.iter = 100000,
                               scale = FALSE) |>
       as_tibble(rownames = "ftr_name")
+
+    # Rename hima results to be consistent with previous HIMA version results
+    result_hidimum_early <- result_hidimum_early |>
+      rename(alpha = alpha_hat,
+             beta = beta_hat,
+             `alpha*beta` = IDE,
+             `% total effect` = rimp,
+             BH.FDR = pmax)
 
     # Reorders the columns and adds the omics layer information
     result_hidimum_early <- result_hidimum_early |>
@@ -404,7 +413,7 @@ hidimum <- function(exposure,
     result_hidimum_late <- vector(mode = "list", length = n_omics)
     for(i in 1:n_omics) {
       # Run HIMA with input data
-      result_hidimum_late[[i]] <- hima(X = exposure,
+      result_hidimum_late[[i]] <- HIMA::hima(X = exposure,
                                     Y = outcome,
                                     M = omics_lst[[i]],
                                     COV.XM = covs,
@@ -420,6 +429,14 @@ hidimum <- function(exposure,
 
     # Concatenate the resulting data frames
     result_hidimum_late_df <- bind_rows(result_hidimum_late, .id = "omic_layer")
+
+    # Rename hima results to be consistent with previous HIMA version results
+    result_hidimum_late_df <- result_hidimum_late_df |>
+      rename(alpha = alpha_hat,
+             beta = beta_hat,
+             `alpha*beta` = IDE,
+             `% total effect` = rimp,
+             BH.FDR = pmax)
 
     # Add key details
     result_hidimum_late_df <- result_hidimum_late_df |>

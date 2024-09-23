@@ -27,16 +27,6 @@ You can install EnvirOmix from
 devtools::install_github("Goodrich-Lab/EnvirOmix")
 ```
 
-**NOTE:** If you receive an error message during installation that the
-package “qvalue” is not found, please install it manually with:
-
-``` r
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("qvalue")
-```
-
 ## Examples
 
 Please see the companion book (access
