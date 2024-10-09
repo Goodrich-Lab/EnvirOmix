@@ -53,3 +53,57 @@ Given exposure, outcome and multiple omics data, this
 function runs high dimensional mediation with early, intermediate, or
 late integration of the multiomics datasets.#'
 }
+\examples{
+ # Load Example Data
+ data("simulated_data")
+ covars <- c("e3_sex_None", "hs_child_age_yrs_None")
+
+ # Extract exposure and outcome data
+ exposure <- simulated_data[["phenotype"]]$hs_hg_m_scaled
+ outcome  <- simulated_data[["phenotype"]]$ck18_scaled
+
+ # Get numeric matrix of covariates
+ covs <- simulated_data[["phenotype"]][covars]
+ covs$e3_sex_None <- ifelse(covs$e3_sex_None == "male", 1, 0)
+
+ # create list of omics data
+ omics_lst <- simulated_data[-which(names(simulated_data) == "phenotype")]
+
+ # High Dimensional Multiomic Mediation with Early integration
+ result_hidimum_early <- hidimum(exposure = exposure,
+                                 outcome = outcome,
+                                 omics_lst = omics_lst,
+                                 covs = covs,
+                                 Y.family = "gaussian",
+                                 M.family = "gaussian",
+                                 integration = "early")
+
+ # High Dimensional Multiomic Mediation with Intermediate integration
+   chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+   if (nzchar(chk) && chk == "TRUE") {
+   # use 2 cores in CRAN/Travis/AppVeyor
+   num_workers <- 2L
+   } else {
+   # use all cores in devtools::test()
+   num_workers <- parallel::detectCores()
+   }
+
+ result_hidimum_int <- hidimum(exposure = exposure,
+                               outcome = outcome,
+                               omics_lst = omics_lst,
+                               covs = covs,
+                               Y.family = "gaussian",
+                               M.family = "gaussian",
+                               integration = "intermediate",
+                               n_boot = num_workers,
+                               n_cores = num_workers)
+
+# High Dimensional Multiomic Mediation with Late integration
+result_hidimum_late <- hidimum(exposure = exposure,
+                               outcome = outcome,
+                               omics_lst = omics_lst,
+                               covs = covs,
+                               Y.family = "gaussian",
+                               M.family = "gaussian",
+                               integration = "late")
+}
