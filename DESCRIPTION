@@ -15,7 +15,7 @@ Description: This is the companion package for the book "Integrating
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends: 
     R (>= 4.1.0)
 LazyData: true
@@ -23,8 +23,6 @@ Suggests:
     testthat (>= 3.0.0),
     BiocManager
 Config/testthat/edition: 3
-biocViews: 
-    qvalue
 Imports: 
     tibble, 
     dplyr, 
@@ -35,7 +33,7 @@ Imports:
     ggplot2, 
     cowplot,
     ggh4x,
-    HIMA,
+    HIMA (>= 2.2.2),
     xtune, 
     r.jive,
     boot, 
