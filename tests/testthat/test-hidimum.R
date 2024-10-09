@@ -25,6 +25,15 @@ test_that("test hidimum", {
     # use all cores in devtools::test()
     num_workers <- parallel::detectCores()
   }
+  # Invalid integration
+
+  testthat::expect_error(object = hidimum(exposure = exposure,
+                                          outcome = outcome,
+                                          omics_lst = omics_lst,
+                                          covs = covs,
+                                          Y.family = "gaussian",
+                                          M.family = "gaussian",
+                                          integration = "invalid_method"))
 
   ## Run Early Analysis ----
   result_hidimum_early <- hidimum(exposure = exposure,
@@ -54,6 +63,22 @@ test_that("test hidimum", {
   testthat::expect_equal(object = ncol(result_hidimum_int), expected = 16)
   testthat::expect_equal(object = nrow(result_hidimum_int), expected = 140)
 
+
+  # result_hidimum_int_no_covs <- hidimum(exposure = exposure,
+  #                                       outcome = outcome,
+  #                                       omics_lst = omics_lst,
+  #                                       covs = NULL,
+  #                                       Y.family = "gaussian",
+  #                                       M.family = "gaussian",
+  #                                       integration = "intermediate",
+  #                                       n_boot = num_workers,
+  #                                       n_cores = num_workers)
+  #
+  # ### Test intermediate (without covariates) -------
+  # testthat::expect_equal(object = ncol(result_hidimum_int_no_covs), expected = 16)
+  # testthat::expect_equal(object = nrow(result_hidimum_int_no_covs), expected = 140)
+
+
   ## Run Late Analysis ----
   result_hidimum_int <- hidimum(exposure = exposure,
                                 outcome = outcome,
@@ -66,6 +91,7 @@ test_that("test hidimum", {
   ### Test that late ran -------
   testthat::expect_equal(object = ncol(result_hidimum_int), expected = 14)
   testthat::expect_equal(object = nrow(result_hidimum_int), expected = 49)
+
 
   # Compare results to HIMA analysis run for a single layer
   hima_individual <- HIMA::hima(X = exposure,

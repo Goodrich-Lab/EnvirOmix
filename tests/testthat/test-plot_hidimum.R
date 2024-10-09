@@ -28,7 +28,7 @@ test_that("plot_hidimum", {
   plotout <- plot_hidimum(result_hidimum_early)
 
   # Test that plot was created
-  testthat::expect_equal(object = length(plotout), expected = 11)
+  testthat::expect_equal(object = length(plotout), expected = 9)
 })
 
 

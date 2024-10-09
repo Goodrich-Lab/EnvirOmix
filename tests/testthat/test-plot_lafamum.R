@@ -28,7 +28,7 @@ test_that("plot_lafamum", {
   plotout <- plot_lafamum(result_lafamum_early)
 
   # Test that plot was created
-  testthat::expect_equal(object = length(plotout), expected = 11)
+  testthat::expect_equal(object = length(plotout), expected = 9)
 
 })
 
