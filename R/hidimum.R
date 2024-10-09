@@ -40,6 +40,60 @@
 #
 #' @export
 #'
+#' @examples
+#'  # Load Example Data
+#'  data("simulated_data")
+#'  covars <- c("e3_sex_None", "hs_child_age_yrs_None")
+#'
+#'  # Extract exposure and outcome data
+#'  exposure <- simulated_data[["phenotype"]]$hs_hg_m_scaled
+#'  outcome  <- simulated_data[["phenotype"]]$ck18_scaled
+#'
+#'  # Get numeric matrix of covariates
+#'  covs <- simulated_data[["phenotype"]][covars]
+#'  covs$e3_sex_None <- ifelse(covs$e3_sex_None == "male", 1, 0)
+#'
+#'  # create list of omics data
+#'  omics_lst <- simulated_data[-which(names(simulated_data) == "phenotype")]
+#'
+#'  # High Dimensional Multiomic Mediation with Early integration
+#'  result_hidimum_early <- hidimum(exposure = exposure,
+#'                                  outcome = outcome,
+#'                                  omics_lst = omics_lst,
+#'                                  covs = covs,
+#'                                  Y.family = "gaussian",
+#'                                  M.family = "gaussian",
+#'                                  integration = "early")
+#'
+#'  # High Dimensional Multiomic Mediation with Intermediate integration
+#'    chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+#'    if (nzchar(chk) && chk == "TRUE") {
+#'    # use 2 cores in CRAN/Travis/AppVeyor
+#'    num_workers <- 2L
+#'    } else {
+#'    # use all cores in devtools::test()
+#'    num_workers <- parallel::detectCores()
+#'    }
+#'
+#'  result_hidimum_int <- hidimum(exposure = exposure,
+#'                                outcome = outcome,
+#'                                omics_lst = omics_lst,
+#'                                covs = covs,
+#'                                Y.family = "gaussian",
+#'                                M.family = "gaussian",
+#'                                integration = "intermediate",
+#'                                n_boot = num_workers,
+#'                                n_cores = num_workers)
+#'
+#'  # High Dimensional Multiomic Mediation with Late integration
+#'  result_hidimum_late <- hidimum(exposure = exposure,
+#'                                outcome = outcome,
+#'                                omics_lst = omics_lst,
+#'                                covs = covs,
+#'                                Y.family = "gaussian",
+#'                                M.family = "gaussian",
+#'                                integration = "late")
+
 hidimum <- function(exposure,
                     outcome,
                     omics_lst,
@@ -52,10 +106,9 @@ hidimum <- function(exposure,
                     n_cores = NULL) {
 
   # Set all of these variables to NULL to fix message that they are not found
-  alpha_hat <- beta_hat <- IDE <- rimp <- `% Total Effect scaled` <-
-    `% total effect` <- Alpha <- Beta <- BH.FDR <- `Correlation TME (%)` <-
-    beta_bootstrap <- data <- estimate <- feature <- feature_name <-
-    ftr_name <- in_ind_omic <- indirect <- lcl <- lf_named <-
+  alpha_hat <- beta_hat <- IDE <- rimp <-`% Total Effect scaled` <- `% total effect` <- Alpha <- Beta <- BH.FDR <-
+    `Correlation TME (%)` <- beta_bootstrap <- data <- estimate <- feature <-
+    feature_name <- ftr_name <- in_ind_omic <- indirect <- lcl <- lf_named <-
     lf_num <- lf_numeric <- lf_ordered <- name <- omic_layer <- omic_num <-
     omic_pc <- pte <- res <- sig <- te_direction <- ucl <- value <- NULL
 
@@ -120,14 +173,6 @@ hidimum <- function(exposure,
                               scale = FALSE) |>
       as_tibble(rownames = "ftr_name")
 
-    # Rename hima results to be consistent with previous HIMA version results
-    result_hidimum_early <- result_hidimum_early |>
-      rename(alpha = alpha_hat,
-             beta = beta_hat,
-             `alpha*beta` = IDE,
-             `% total effect` = rimp,
-             BH.FDR = pmax)
-
     # Reorders the columns and adds the omics layer information
     result_hidimum_early <- result_hidimum_early |>
       dplyr::mutate(
@@ -138,10 +183,12 @@ hidimum <- function(exposure,
                     everything())
     # Filter to significant features only and scale % total effect to 100
     result_hidimum_early <- result_hidimum_early |>
-      mutate(pte = 100*`% total effect`/sum(`% total effect`),
-             sig = if_else(BH.FDR < bh.fdr, 1, 0)) |>
-      rename(ie = 'alpha*beta',
-             `TME (%)` = pte)
+      dplyr::mutate(pte = 100*rimp/sum(rimp),
+             sig = if_else(pmax < bh.fdr, 1, 0)) |>
+      rename(ie = 'IDE',
+             `TME (%)` = pte,
+             alpha = alpha_hat,
+             beta = beta_hat)
 
     # Merge results with feature metadata
     result_hidimum_early <- result_hidimum_early |>
@@ -413,7 +460,7 @@ hidimum <- function(exposure,
     result_hidimum_late <- vector(mode = "list", length = n_omics)
     for(i in 1:n_omics) {
       # Run HIMA with input data
-      result_hidimum_late[[i]] <- HIMA::hima(X = exposure,
+      result_hidimum_late[[i]] <- hima(X = exposure,
                                     Y = outcome,
                                     M = omics_lst[[i]],
                                     COV.XM = covs,
@@ -430,14 +477,6 @@ hidimum <- function(exposure,
     # Concatenate the resulting data frames
     result_hidimum_late_df <- bind_rows(result_hidimum_late, .id = "omic_layer")
 
-    # Rename hima results to be consistent with previous HIMA version results
-    result_hidimum_late_df <- result_hidimum_late_df |>
-      rename(alpha = alpha_hat,
-             beta = beta_hat,
-             `alpha*beta` = IDE,
-             `% total effect` = rimp,
-             BH.FDR = pmax)
-
     # Add key details
     result_hidimum_late_df <- result_hidimum_late_df |>
       dplyr::mutate(
@@ -449,10 +488,12 @@ hidimum <- function(exposure,
 
     # Filter to significant features only and scale % total effect to 100
     result_hidimum_late_df <- result_hidimum_late_df |>
-      mutate(pte = 100*`% total effect`/sum(`% total effect`),
-             sig = if_else(BH.FDR < bh.fdr, 1, 0)) |>
-      rename(ie = 'alpha*beta',
-             `TME (%)` = pte) |>
+      mutate(pte = 100*rimp/sum(rimp),
+             sig = if_else(pmax < bh.fdr, 1, 0)) |>
+      rename(ie = IDE,
+             `TME (%)` = pte,
+             alpha = alpha_hat,
+             beta = beta_hat) |>
       mutate(integration = integration)
 
     # Return the final table
