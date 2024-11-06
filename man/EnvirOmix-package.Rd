@@ -16,6 +16,7 @@ Authors:
   \item Hongxu Wang
   \item Qiran Jia
   \item David Conti
+  \item Shardul Nazirkar
 }
 
 }
