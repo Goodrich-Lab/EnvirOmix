@@ -98,8 +98,8 @@ late integration of the multiomics datasets.#'
                                n_boot = num_workers,
                                n_cores = num_workers)
 
-# High Dimensional Multiomic Mediation with Late integration
-result_hidimum_late <- hidimum(exposure = exposure,
+ # High Dimensional Multiomic Mediation with Late integration
+ result_hidimum_late <- hidimum(exposure = exposure,
                                outcome = outcome,
                                omics_lst = omics_lst,
                                covs = covs,
