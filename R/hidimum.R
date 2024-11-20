@@ -31,7 +31,7 @@
 #' @importFrom stringr str_detect
 #' @importFrom stats gaussian binomial coef glm lm sd
 #' @importFrom utils capture.output tail
-#' @importFrom HIMA hima
+#' @importFrom HIMA classicHIMA
 #' @importFrom xtune xtune estimateVariance
 #' @importFrom boot boot
 #' @importFrom parallel detectCores
@@ -161,7 +161,7 @@ hidimum <- function(exposure,
       column_to_rownames("name")
 
     # Run hima
-    result_hidimum_early <- hima(X = exposure,
+    result_hidimum_early <- classicHIMA(X = exposure,
                               Y = outcome,
                               M = omics_df,
                               COV.XM = covs,
@@ -460,7 +460,7 @@ hidimum <- function(exposure,
     result_hidimum_late <- vector(mode = "list", length = n_omics)
     for(i in 1:n_omics) {
       # Run HIMA with input data
-      result_hidimum_late[[i]] <- hima(X = exposure,
+      result_hidimum_late[[i]] <- classicHIMA(X = exposure,
                                     Y = outcome,
                                     M = omics_lst[[i]],
                                     COV.XM = covs,
