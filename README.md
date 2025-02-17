@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# EnvirOmix
+# EnvirOmix: Functions for high-dimensional multiomic mediation analysis.
 
 <!-- badges: start -->
 

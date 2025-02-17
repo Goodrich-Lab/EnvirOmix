@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# EnvirOmix
+# EnvirOmix: Functions for high-dimensional multiomic mediation analysis. 
 
 <!-- badges: start -->
 [![Codecov test coverage](https://codecov.io/gh/Goodrich-Lab/EnvirOmix/branch/main/graph/badge.svg)](https://app.codecov.io/gh/Goodrich-Lab/EnvirOmix?branch=main)
