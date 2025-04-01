@@ -37,7 +37,7 @@ of early, intermediate, or late)}
 for calculating the se of the mediation effect (only applies for
 intermediate integration, otherwise, ignored)}
 
-\item{bh.fdr}{Bonferonni-Hochberg FDR correction threshold for selecting
+\item{bh.fdr}{Bonferroni-Hochberg FDR correction threshold for selecting
 significant features from HIMA for early and late integration. Defaults
 to 0.05.}
 

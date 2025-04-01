@@ -7,10 +7,10 @@
 plot_hidimum(result_hidimum)
 }
 \arguments{
-\item{result_hidimum}{an output dataframe from the hidimum analysis}
+\item{result_hidimum}{an output dataframe from the \link{hidimum} analysis}
 }
 \value{
-a figure of the result of high dimensinal multiomic mediation analysis in given integration
+a figure of the result of high dimensional multiomic mediation analysis in given integration
 }
 \description{
 Given a tidy dataframe summarizing the results of HIMA analysis

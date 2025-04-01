@@ -16,7 +16,7 @@ plotted. May not exactly be related to the total number of features plotted
 due to overlapping features across latent factors.}
 
 \item{plot_type}{One of "all", "mediation", or "features".
-If "all" is selected (the default), the mediation bargraph and heatmap of
+If "all" is selected (the default), the mediation bar graph and heatmap of
 individual features is plotted together. If "mediation" or "features"
 is selected, only the mediation or the features heatmap is plotted.}
 }

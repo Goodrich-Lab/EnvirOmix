@@ -37,5 +37,5 @@
 #'     IDs and column names representing metabolites.
 #'   }
 #' }
-#' @source http://www.projecthelix.eu/
+#' @source <http://www.projecthelix.eu/>
 "simulated_data"

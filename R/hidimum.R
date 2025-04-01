@@ -12,7 +12,7 @@
 #' @param M.family A character string indicating the family of the mediator
 #' @param integration A character string indicating the integration method (one
 #' of early, intermediate, or late)
-#' @param bh.fdr Bonferonni-Hochberg FDR correction threshold for selecting
+#' @param bh.fdr Bonferroni-Hochberg FDR correction threshold for selecting
 #' significant features from HIMA for early and late integration. Defaults
 #' to 0.05.
 #' @param n_boot number indicating number of bootstrap estimates to perform

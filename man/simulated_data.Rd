@@ -8,7 +8,7 @@
 An object of class \code{list} of length 6.
 }
 \source{
-http://www.projecthelix.eu/
+\url{http://www.projecthelix.eu/}
 }
 \usage{
 simulated_data
