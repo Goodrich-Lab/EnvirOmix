@@ -12,7 +12,7 @@
 #' @param M.family A character string indicating the family of the mediator
 #' @param integration A character string indicating the integration method (one
 #' of early, intermediate, or late)
-#' @param bh.fdr Bonferonni-Hochberg FDR correction threshold for selecting
+#' @param bh.fdr Bonferroni-Hochberg FDR correction threshold for selecting
 #' significant features from HIMA for early and late integration. Defaults
 #' to 0.05.
 #' @param n_boot number indicating number of bootstrap estimates to perform
@@ -31,7 +31,7 @@
 #' @importFrom stringr str_detect
 #' @importFrom stats gaussian binomial coef glm lm sd
 #' @importFrom utils capture.output tail
-#' @importFrom HIMA classicHIMA
+#' @importFrom HIMA hima_classic
 #' @importFrom xtune xtune estimateVariance
 #' @importFrom boot boot
 #' @importFrom parallel detectCores
@@ -65,26 +65,26 @@
 #'                                  M.family = "gaussian",
 #'                                  integration = "early")
 #'
-#'  # High Dimensional Multiomic Mediation with Intermediate integration
-#'    chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
-#'    if (nzchar(chk) && chk == "TRUE") {
-#'    # use 2 cores in CRAN/Travis/AppVeyor
-#'    num_workers <- 2L
-#'    } else {
-#'    # use all cores in devtools::test()
-#'    num_workers <- parallel::detectCores()
-#'    }
-#'
-#'  result_hidimum_int <- hidimum(exposure = exposure,
-#'                                outcome = outcome,
-#'                                omics_lst = omics_lst,
-#'                                covs = covs,
-#'                                Y.family = "gaussian",
-#'                                M.family = "gaussian",
-#'                                integration = "intermediate",
-#'                                n_boot = num_workers,
-#'                                n_cores = num_workers)
-#'
+#'  # High Dimensional Multiomic Mediation with Intermediate integration (Not Run)
+#'  #     chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+#'  #     if (nzchar(chk) && chk == "TRUE") {
+#'  #     # use 2 cores in CRAN/Travis/AppVeyor
+#'  #     num_workers <- 2L
+#'  #     } else {
+#'  #     # use all cores in devtools::test()
+#'  #     num_workers <- parallel::detectCores()
+#'  #     }
+#'  #
+#'  #   result_hidimum_int <- hidimum(exposure = exposure,
+#'  #                                 outcome = outcome,
+#'  #                                 omics_lst = omics_lst,
+#'  #                                 covs = covs,
+#'  #                                 Y.family = "gaussian",
+#'  #                                 M.family = "gaussian",
+#'  #                                 integration = "intermediate",
+#'  #                                 n_boot = num_workers,
+#'  #                                 n_cores = num_workers)
+#'  #
 #'  # High Dimensional Multiomic Mediation with Late integration
 #'  result_hidimum_late <- hidimum(exposure = exposure,
 #'                                outcome = outcome,
@@ -161,7 +161,7 @@ hidimum <- function(exposure,
       column_to_rownames("name")
 
     # Run hima
-    result_hidimum_early <- classicHIMA(X = exposure,
+    result_hidimum_early <- hima_classic(X = exposure,
                               Y = outcome,
                               M = omics_df,
                               COV.XM = covs,
@@ -460,7 +460,7 @@ hidimum <- function(exposure,
     result_hidimum_late <- vector(mode = "list", length = n_omics)
     for(i in 1:n_omics) {
       # Run HIMA with input data
-      result_hidimum_late[[i]] <- classicHIMA(X = exposure,
+      result_hidimum_late[[i]] <- hima_classic(X = exposure,
                                     Y = outcome,
                                     M = omics_lst[[i]],
                                     COV.XM = covs,

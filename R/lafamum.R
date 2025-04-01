@@ -40,7 +40,7 @@
 #' @importFrom tidyr as_tibble
 #' @importFrom purrr map
 #' @importFrom stats prcomp cor
-#' @importFrom HIMA classicHIMA
+#' @importFrom HIMA hima_classic
 #' @importFrom r.jive jive
 #'
 #' @export
@@ -127,7 +127,7 @@ lafamum <- function(exposure,
 
     # ii. Perform HIMA with PCs as mediator----
 
-    result_hidimum_comb_pc <- classicHIMA(X  = exposure,
+    result_hidimum_comb_pc <- hima_classic(X  = exposure,
                                 Y = outcome,
                                 M = PCs,
                                 COV.XM = covs,
@@ -285,7 +285,7 @@ lafamum <- function(exposure,
 
     # Select only HH:MM:SS from Sys.time()
 
-    result_hidimum_jive <- classicHIMA(X = exposure,
+    result_hidimum_jive <- hima_classic(X = exposure,
                              Y = outcome,
                              M = factors_jive,
                              COV.MY = covs,
@@ -407,7 +407,7 @@ lafamum <- function(exposure,
       bind_rows()
 
     # ii. run HIMA with the current dataset and principal components ----
-    result_hidimum_late_integration <- classicHIMA(X = exposure,
+    result_hidimum_late_integration <- hima_classic(X = exposure,
                                          Y = outcome,
                                          M = scores_df,
                                          COV.MY = covs,

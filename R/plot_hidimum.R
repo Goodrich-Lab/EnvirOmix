@@ -2,9 +2,9 @@
 #'
 #' Given a tidy dataframe summarizing the results of HIMA analysis
 #'
-#' @param result_hidimum  an output dataframe from the hidimum analysis
+#' @param result_hidimum  an output dataframe from the [hidimum] analysis
 #'
-#' @return a figure of the result of high dimensinal multiomic mediation analysis in given integration
+#' @return a figure of the result of high dimensional multiomic mediation analysis in given integration
 #'
 #' @import dplyr
 #' @import tidyr

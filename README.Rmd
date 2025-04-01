@@ -15,9 +15,9 @@ knitr::opts_chunk$set(
 
 # EnvirOmix: Functions for high-dimensional multiomic mediation analysis. 
 
+
 <!-- badges: start -->
-[![Codecov test coverage](https://codecov.io/gh/Goodrich-Lab/EnvirOmix/branch/main/graph/badge.svg)](https://app.codecov.io/gh/Goodrich-Lab/EnvirOmix?branch=main)
-[![DOI](https://zenodo.org/badge/713083409.svg)](https://zenodo.org/badge/latestdoi/713083409)
+
 <!-- badges: end -->
 
 The goal of EnvirOmix is to provide a suite of functions for the analysis of environmental and multiomics data. This is the companion package for the book [Integrating Multi-Omics with Environmental data for Precision Health](https://goodrich-lab.github.io/multiomics_book/). It contains all of the functions and data required to run all of the examples in the book.

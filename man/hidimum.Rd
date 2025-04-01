@@ -37,7 +37,7 @@ of early, intermediate, or late)}
 for calculating the se of the mediation effect (only applies for
 intermediate integration, otherwise, ignored)}
 
-\item{bh.fdr}{Bonferonni-Hochberg FDR correction threshold for selecting
+\item{bh.fdr}{Bonferroni-Hochberg FDR correction threshold for selecting
 significant features from HIMA for early and late integration. Defaults
 to 0.05.}
 
@@ -78,26 +78,26 @@ late integration of the multiomics datasets.#'
                                  M.family = "gaussian",
                                  integration = "early")
 
- # High Dimensional Multiomic Mediation with Intermediate integration
-   chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
-   if (nzchar(chk) && chk == "TRUE") {
-   # use 2 cores in CRAN/Travis/AppVeyor
-   num_workers <- 2L
-   } else {
-   # use all cores in devtools::test()
-   num_workers <- parallel::detectCores()
-   }
-
- result_hidimum_int <- hidimum(exposure = exposure,
-                               outcome = outcome,
-                               omics_lst = omics_lst,
-                               covs = covs,
-                               Y.family = "gaussian",
-                               M.family = "gaussian",
-                               integration = "intermediate",
-                               n_boot = num_workers,
-                               n_cores = num_workers)
-
+ # High Dimensional Multiomic Mediation with Intermediate integration (Not Run)
+ #     chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+ #     if (nzchar(chk) && chk == "TRUE") {
+ #     # use 2 cores in CRAN/Travis/AppVeyor
+ #     num_workers <- 2L
+ #     } else {
+ #     # use all cores in devtools::test()
+ #     num_workers <- parallel::detectCores()
+ #     }
+ #
+ #   result_hidimum_int <- hidimum(exposure = exposure,
+ #                                 outcome = outcome,
+ #                                 omics_lst = omics_lst,
+ #                                 covs = covs,
+ #                                 Y.family = "gaussian",
+ #                                 M.family = "gaussian",
+ #                                 integration = "intermediate",
+ #                                 n_boot = num_workers,
+ #                                 n_cores = num_workers)
+ #
  # High Dimensional Multiomic Mediation with Late integration
  result_hidimum_late <- hidimum(exposure = exposure,
                                outcome = outcome,
