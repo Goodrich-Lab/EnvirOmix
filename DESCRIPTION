@@ -24,7 +24,7 @@ Imports:
     forcats,
     ggh4x,
     ggplot2,
-    HIMA (>= 2.2.2),
+    HIMA (>= 2.3.1),
     parallel,
     purrr,
     r.jive,

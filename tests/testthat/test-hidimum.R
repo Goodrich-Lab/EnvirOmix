@@ -99,7 +99,7 @@ test_that("test hidimum", {
 
 
   # Compare results to HIMA analysis run for a single layer
-  hima_individual <- HIMA::classicHIMA(X = exposure,
+  hima_individual <- HIMA::hima_classic(X = exposure,
                                 Y = outcome,
                                 M = omics_lst[[1]],
                                 COV.XM = covs,
