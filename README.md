@@ -4,10 +4,6 @@
 # EnvirOmix: Functions for high-dimensional multiomic mediation analysis.
 
 <!-- badges: start -->
-
-[![Codecov test
-coverage](https://codecov.io/gh/Goodrich-Lab/EnvirOmix/branch/main/graph/badge.svg)](https://app.codecov.io/gh/Goodrich-Lab/EnvirOmix?branch=main)
-[![DOI](https://zenodo.org/badge/713083409.svg)](https://zenodo.org/badge/latestdoi/713083409)
 <!-- badges: end -->
 
 The goal of EnvirOmix is to provide a suite of functions for the
