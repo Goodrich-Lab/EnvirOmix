@@ -4,6 +4,7 @@
 # EnvirOmix: Functions for high-dimensional multiomic mediation analysis.
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 The goal of EnvirOmix is to provide a suite of functions for the
@@ -19,8 +20,39 @@ You can install EnvirOmix from
 [GitHub](https://github.com/Goodrich-Lab/EnvirOmix) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("Goodrich-Lab/EnvirOmix")
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+if (!require("remotes", quietly = TRUE))
+  install.packages("remotes")
+ 
+if (!require("qvalue", quietly = TRUE))
+   BiocManager::install("qvalue")
+
+if (!require("HIMA", quietly = TRUE))
+  remotes::install_github("yinanzheng/HIMA")
+  
+remotes::install_github("Goodrich-Lab/EnvirOmix")
+```
+
+The core package now installs and loads without `xtune`. If you want to
+use the `integration = "intermediate"` workflow in `hidimum()`, install
+the optional dependency with either:
+
+``` r
+remotes::install_github("JingxuanH/xtune")
+```
+
+or from the CRAN archive:
+
+``` r
+install.packages("selectiveInference")
+install.packages("lbfgs")
+install.packages(
+  "https://cran.r-project.org/src/contrib/Archive/xtune/xtune_2.0.0.tar.gz",
+  repos = NULL,
+  type = "source"
+)
 ```
 
 ## Examples

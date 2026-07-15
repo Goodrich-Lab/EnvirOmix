@@ -13,6 +13,7 @@ This is the companion package for the book "Integrating Multi-Omics with Environ
 
 Authors:
 \itemize{
+  \item Jesse Goodrich \email{jagoodri@usc.edu} (\href{https://orcid.org/0000-0001-6615-0472}{ORCID})
   \item Hongxu Wang
   \item Qiran Jia
   \item David Conti
