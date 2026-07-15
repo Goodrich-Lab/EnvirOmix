@@ -40,7 +40,6 @@
 #' @importFrom tidyr as_tibble
 #' @importFrom purrr map
 #' @importFrom stats prcomp cor
-#' @importFrom HIMA hima_classic
 #' @importFrom r.jive jive
 #'
 #' @export
@@ -111,6 +110,7 @@ lafamum <- function(exposure,
 
   # Early integration ---------
   if(integration == "early"){
+    .require_analysis_packages("HIMA", "lafamum() with early integration")
     # i. Obtain PCs----
     omics_df_pca <- prcomp(omics_df, center = TRUE, scale. = TRUE)
 
@@ -127,14 +127,14 @@ lafamum <- function(exposure,
 
     # ii. Perform HIMA with PCs as mediator----
 
-    result_hidimum_comb_pc <- hima_classic(X  = exposure,
-                                Y = outcome,
-                                M = PCs,
-                                COV.XM = covs,
-                                COV.MY = covs,
-                                Y.family =  Y.family,
-                                M.family = c("gaussian"),
-                                scale = FALSE)
+    result_hidimum_comb_pc <- HIMA::hima_classic(X  = exposure,
+                                       Y = outcome,
+                                       M = PCs,
+                                       COV.XM = covs,
+                                       COV.MY = covs,
+                                       Y.family =  Y.family,
+                                       M.family = c("gaussian"),
+                                       scale = FALSE)
 
 
     # Rename hima results to be consistent with previous HIMA version results
@@ -148,6 +148,7 @@ lafamum <- function(exposure,
 
     # Change to tibble and select significant PCs
     result_hidimum_pca_early <- as_tibble(result_hidimum_comb_pc, rownames = "lf_num") |>
+      .resolve_hima_index("lf_num") |>
       filter(BH.FDR < fdr.level)
 
     # Filter Significant PCs, Create scaled %TE variable
@@ -191,6 +192,8 @@ lafamum <- function(exposure,
 
   # Intermediate integration ---------
   if(integration == "intermediate") {
+    .require_analysis_packages(c("HIMA", "r.jive"),
+                               "lafamum() with intermediate integration")
     # Transpose omics matrices
     omics_t <- lapply(omics_lst, t)
 
@@ -215,13 +218,13 @@ lafamum <- function(exposure,
       message(paste0("Step A) Starting JIVE analysis with ranks given...   (",
                      format(Sys.time(), "%H:%M:%S"), ")\n"))
 
-    result_jive2 <- jive(data = omics_t,
-                         rankJ = jive.rankJ,
-                         rankA = jive.rankA,
-                         method = "given",
-                         conv = 1e-04,
-                         maxiter = 100,
-                         showProgress = FALSE)
+     result_jive2 <- jive(data = omics_t,
+                          rankJ = jive.rankJ,
+                          rankA = jive.rankA,
+                          method = "given",
+                          conv = 1e-04,
+                          maxiter = 100,
+                          showProgress = FALSE)
     }
 
 
@@ -285,15 +288,15 @@ lafamum <- function(exposure,
 
     # Select only HH:MM:SS from Sys.time()
 
-    result_hidimum_jive <- hima_classic(X = exposure,
-                             Y = outcome,
-                             M = factors_jive,
-                             COV.MY = covs,
-                             COV.XM = covs,
-                             Y.family = c("gaussian"),
-                             M.family = c("gaussian"),
-                             verbose = FALSE,
-                             scale = FALSE)
+    result_hidimum_jive <- HIMA::hima_classic(X = exposure,
+                                    Y = outcome,
+                                    M = factors_jive,
+                                    COV.MY = covs,
+                                    COV.XM = covs,
+                                    Y.family = c("gaussian"),
+                                    M.family = c("gaussian"),
+                                    verbose = FALSE,
+                                    scale = FALSE)
 
 
     # Rename hima results to be consistent with previous HIMA version results
@@ -307,6 +310,7 @@ lafamum <- function(exposure,
     # Modify and filter significant
     result_hidimum_jive_1 <- result_hidimum_jive |>
       rownames_to_column("lf_num") |>
+      .resolve_hima_index("lf_num") |>
       mutate(multiomic_mthd = "Intermediate",
              ind_joint = str_split_fixed(lf_num, fixed("_"), 2)[,1],
              ind_joint_num = case_when(ind_joint == "Joint" ~ 1,
@@ -355,6 +359,7 @@ lafamum <- function(exposure,
 
   # Late integration ---------
   if(integration == "late"){
+    .require_analysis_packages("HIMA", "lafamum() with late integration")
     # Define function to run PCA on a matrix and return loadings and scores
     run_pca <- function(mat, omic_name) {
       # perform PCA on input matrix with scaling
@@ -407,14 +412,14 @@ lafamum <- function(exposure,
       bind_rows()
 
     # ii. run HIMA with the current dataset and principal components ----
-    result_hidimum_late_integration <- hima_classic(X = exposure,
-                                         Y = outcome,
-                                         M = scores_df,
-                                         COV.MY = covs,
-                                         COV.XM = covs,
-                                         Y.family = c("gaussian"),
-                                         M.family = c("gaussian"),
-                                         scale = FALSE)
+    result_hidimum_late_integration <- HIMA::hima_classic(X = exposure,
+                                                Y = outcome,
+                                                M = scores_df,
+                                                COV.MY = covs,
+                                                COV.XM = covs,
+                                                Y.family = c("gaussian"),
+                                                M.family = c("gaussian"),
+                                                scale = FALSE)
 
     # Rename hima results to be consistent with previous HIMA version results
     result_hidimum_late_integration <- result_hidimum_late_integration |>
@@ -427,6 +432,7 @@ lafamum <- function(exposure,
     # Filter significant pcs, create scaled %TE variable
     result_hidimum_late_sig <- result_hidimum_late_integration |>
       as_tibble(rownames = "lf_num") |>
+      .resolve_hima_index("lf_num") |>
       filter(BH.FDR < 0.05) |>
       mutate(
         te_direction = if_else(beta<0, -1*`% total effect`, `% total effect`),

@@ -31,11 +31,8 @@
 #' @importFrom stringr str_detect
 #' @importFrom stats gaussian binomial coef glm lm sd
 #' @importFrom utils capture.output tail
-#' @importFrom HIMA hima_classic
-#' @importFrom xtune xtune estimateVariance
 #' @importFrom boot boot
 #' @importFrom parallel detectCores
-#' @importFrom epiomics owas
 #' @importFrom RMediation medci
 #
 #' @export
@@ -142,6 +139,7 @@ hidimum <- function(exposure,
 
   # Early integration ---------
   if(integration == "early"){
+    .require_analysis_packages("HIMA", "hidimum() with early integration")
 
     # Combines omics data into one dataframe
     omics_lst_df <- purrr::map(omics_lst, ~tibble::as_tibble(.x, rownames = "name"))
@@ -161,16 +159,16 @@ hidimum <- function(exposure,
       column_to_rownames("name")
 
     # Run hima
-    result_hidimum_early <- hima_classic(X = exposure,
-                              Y = outcome,
-                              M = omics_df,
-                              COV.XM = covs,
-                              COV.MY = covs,
-                              Y.family = Y.family,
-                              M.family = M.family,
-                              verbose = FALSE,
-                              max.iter = 100000,
-                              scale = FALSE) |>
+    result_hidimum_early <- HIMA::hima_classic(X = exposure,
+                                     Y = outcome,
+                                     M = omics_df,
+                                     COV.XM = covs,
+                                     COV.MY = covs,
+                                     Y.family = Y.family,
+                                     M.family = M.family,
+                                     verbose = FALSE,
+                                     max.iter = 100000,
+                                     scale = FALSE) |>
       as_tibble(rownames = "ftr_name")
 
     # Reorders the columns and adds the omics layer information
@@ -202,6 +200,10 @@ hidimum <- function(exposure,
 
   # Intermediate integration ---------
   if(integration == "intermediate") {
+    .require_analysis_packages(c("HIMA", "RMediation"),
+                               "hidimum() with intermediate integration")
+    .require_intermediate_packages()
+
     ## Change omics elements to dataframes
     omics_lst_df <- purrr::map(omics_lst, ~as_tibble(.x, rownames = "name"))
 
@@ -288,9 +290,9 @@ hidimum <- function(exposure,
     # Run xtune
     invisible(
       capture.output(
-        xtune.fit_all_data <- xtune(X = X, Y = Y, Z = Z, U = U,
-                                    c = 1,
-                                    family = "linear")
+        xtune.fit_all_data <- xtune::xtune(X = X, Y = Y, Z = Z, U = U,
+                                           c = 1,
+                                           family = "linear")
       )
     )
 
@@ -316,10 +318,10 @@ hidimum <- function(exposure,
       while(!success & attempts < 10) {
         tryCatch({
           # Run xtune
-          xtune.fit <- xtune(X = X, Y = Y, Z = as.matrix(external_info), U = U,
-                             sigma.square = estimateVariance(X,Y),
-                             c = 0,
-                             family = "linear", message = FALSE)
+          xtune.fit <- xtune::xtune(X = X, Y = Y, Z = as.matrix(external_info), U = U,
+                                    sigma.square = xtune::estimateVariance(X, Y),
+                                    c = 0,
+                                    family = "linear", message = FALSE)
 
 
           # If the xtune call is successful, proceed with the rest of the code
@@ -442,6 +444,7 @@ hidimum <- function(exposure,
 
   # Late Integration ---------------
   if(integration == "late"){
+    .require_analysis_packages("HIMA", "hidimum() with late integration")
     # Get number of omics layers
     n_omics <- length(omics_lst)
     omics_name <- names(omics_lst)
@@ -460,14 +463,14 @@ hidimum <- function(exposure,
     result_hidimum_late <- vector(mode = "list", length = n_omics)
     for(i in 1:n_omics) {
       # Run HIMA with input data
-      result_hidimum_late[[i]] <- hima_classic(X = exposure,
-                                    Y = outcome,
-                                    M = omics_lst[[i]],
-                                    COV.XM = covs,
-                                    Y.family = Y.family,
-                                    M.family = M.family,
-                                    max.iter = 100000,
-                                    scale = FALSE) |>
+      result_hidimum_late[[i]] <- HIMA::hima_classic(X = exposure,
+                                           Y = outcome,
+                                           M = omics_lst[[i]],
+                                           COV.XM = covs,
+                                           Y.family = Y.family,
+                                           M.family = M.family,
+                                           max.iter = 100000,
+                                           scale = FALSE) |>
         as_tibble(rownames = "ftr_name")
     }
 
@@ -500,4 +503,3 @@ hidimum <- function(exposure,
     return(result_hidimum_late_df)
   }
 }
-

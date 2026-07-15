@@ -49,45 +49,10 @@ test_that("test hidimum", {
   ### Test Early -------
   testthat::expect_equal(object = ncol(result_hidimum_early), expected = 14)
 
-  ## Run Intermediate Analysis ----
-  set.seed(1234)
-  result_hidimum_int <- hidimum(exposure = exposure,
-                                outcome = outcome,
-                                omics_lst = omics_lst,
-                                covs = covs,
-                                Y.family = "gaussian",
-                                M.family = "gaussian",
-                                integration = "intermediate",
-                                n_boot = num_workers,
-                                n_cores = num_workers)
-
-  # Save colnames for comparison across methods
-  int_cols <- colnames(result_hidimum_int)
-
-  ### Test intermediate -------
-  testthat::expect_equal(object = ncol(result_hidimum_int), expected = 16)
-  testthat::expect_equal(object = nrow(result_hidimum_int), expected = 140)
-
-
-  # result_hidimum_int_no_covs <- hidimum(exposure = exposure,
-  #                                       outcome = outcome,
-  #                                       omics_lst = omics_lst,
-  #                                       covs = NULL,
-  #                                       Y.family = "gaussian",
-  #                                       M.family = "gaussian",
-  #                                       integration = "intermediate",
-  #                                       n_boot = num_workers,
-  #                                       n_cores = num_workers)
-  #
-  # ### Test intermediate (without covariates) -------
-  # testthat::expect_equal(object = ncol(result_hidimum_int_no_covs), expected = 16)
-  # testthat::expect_equal(object = nrow(result_hidimum_int_no_covs), expected = 140)
-
-
   ## Run Late Analysis ----
   result_hidimum_late <- hidimum(exposure = exposure,
-                                outcome = outcome,
-                                omics_lst = omics_lst,
+                                 outcome = outcome,
+                                 omics_lst = omics_lst,
                                 covs = covs,
                                 Y.family = "gaussian",
                                 M.family = "gaussian",
@@ -114,4 +79,45 @@ test_that("test hidimum", {
   testthat::expect_equal(object = himum_l_m$alpha,
                          expected = hima_individual$alpha)
 
+})
+
+test_that("test hidimum intermediate", {
+  if (!identical(Sys.getenv("RUN_XTUNE_TESTS", unset = "false"), "true")) {
+    testthat::skip("Set RUN_XTUNE_TESTS=true to run optional xtune integration tests")
+  }
+
+  testthat::skip_if_not_installed("epiomics")
+  testthat::skip_if_not_installed("xtune")
+
+  simulated_data <- simulated_data
+  covars <- c("e3_sex_None", "hs_child_age_yrs_None")
+
+  exposure <- simulated_data[["phenotype"]]$hs_hg_m_scaled
+  outcome  <- simulated_data[["phenotype"]]$ck18_scaled
+
+  covs <- simulated_data[["phenotype"]][covars]
+  covs$e3_sex_None <- ifelse(covs$e3_sex_None == "male", 1, 0)
+
+  omics_lst <- simulated_data[-which(names(simulated_data) == "phenotype")]
+
+  chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+  if (nzchar(chk) && chk == "TRUE") {
+    num_workers <- 2L
+  } else {
+    num_workers <- parallel::detectCores()
+  }
+
+  set.seed(1234)
+  result_hidimum_int <- hidimum(exposure = exposure,
+                                outcome = outcome,
+                                omics_lst = omics_lst,
+                                covs = covs,
+                                Y.family = "gaussian",
+                                M.family = "gaussian",
+                                integration = "intermediate",
+                                n_boot = num_workers,
+                                n_cores = num_workers)
+
+  testthat::expect_equal(object = ncol(result_hidimum_int), expected = 16)
+  testthat::expect_equal(object = nrow(result_hidimum_int), expected = 140)
 })

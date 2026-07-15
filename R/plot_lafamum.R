@@ -100,6 +100,9 @@ plot_lafamum <- function(lafamum_res,
   ## Select rows with values in the top 10 of their respective columns
   top <- apply(lafamum_res_ftrs, 2,
                function(x) x %in% tail(sort(abs(x)), n_features))
+  if (is.null(dim(top))) {
+    top <- matrix(top, ncol = 1)
+  }
 
   ## Filter selected rows
   ftr_cor_sig_lf_top_ft <- lafamum_res[[2]][which(rowSums(top) > 0), ]
